@@ -1,2 +1,4 @@
 fastapi==0.111.1
-uvicorn[standard]
+websockets
+numpy==2.0.0
+# uvicorn[standard]
