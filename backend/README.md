@@ -5,3 +5,9 @@ cd backend
 docker build -t backend-img:0.0.1 .
 docker run -it --rm -p 8080:8080 --name backend backend-img:0.0.1
 ```
+
+# Set venv
+```bash
+python -m venv /Users/ukekeilele/Desktop/Coding/Python/venv
+source /Users/ukekeilele/Desktop/Coding/Python/venv/bin/activate
+```

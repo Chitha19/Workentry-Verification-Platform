@@ -1,15 +1,29 @@
-from typing import Union
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, HTTPException
+from db import get_corps, get_corp
+from model import Corp
 
 app = FastAPI()
 
-@app.get("/api/v1")
-def read_root():
-    return {"Hello": "World"}
+@app.get(
+    "/api/v1/corp/",
+    response_description="List all corporates.",
+    response_model=list[Corp],
+    response_model_by_alias=False,
+)
+async def read_corps():
+    return get_corps()
 
-@app.get("/api/v1/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+@app.get(
+    "/api/v1/corp/{id}",
+    response_description="List all corporates.",
+    response_model=Corp,
+    response_model_by_alias=False,
+)
+async def read_corp(id: str):
+    corp = get_corp(id)
+    if corp is not None:
+        return corp
+    raise HTTPException(status_code=404, detail=f"Corporate {id} not found.")
 
 @app.websocket("/ws/v1/face-verification")
 async def face_verification(websocket: WebSocket):
