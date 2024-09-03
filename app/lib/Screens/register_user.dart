@@ -1,6 +1,8 @@
+import 'package:app/Screens/register_corp.dart';
+import 'package:app/Widgets/register_btn.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:app/Widgets/input_layout.dart';
 import 'package:app/States/register_form.dart';
 import 'package:provider/provider.dart';
 
@@ -17,77 +19,109 @@ class _RegisterUserState extends State<RegisterUser> {
   final Random _rnd = Random();
   late TextEditingController emailController;
   late TextEditingController passwordController;
-
-  String randomPassword(int length) {
-    return String.fromCharCodes(Iterable.generate(
-        length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
-  }
+  bool _emailValid = false;
+  bool _passwordValid = true;
 
   @override
   void initState() {
     super.initState();
     emailController = TextEditingController();
     passwordController = TextEditingController(text: randomPassword(10));
+
+    emailController.addListener(() {
+      if (emailController.text.characters.isEmpty) {
+        setState(() {
+          _emailValid = false;
+        });
+      } else {
+        setState(() {
+          _emailValid = true;
+        });
+      }
+    });
+
+    passwordController.addListener(() {
+      if (passwordController.text.characters.isEmpty) {
+        setState(() {
+          _passwordValid = false;
+        });
+      } else {
+        setState(() {
+          _passwordValid = true;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
-    final form = Provider.of<RegisterForm>(context, listen: false);
-    form.email = emailController.text;
-    form.password = passwordController.text;
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  String randomPassword(int length) {
+    return String.fromCharCodes(Iterable.generate(
+        length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+  }
+
+  bool get _valid => (_emailValid && _passwordValid);
+
+  void _nextPage() {
+    RegisterForm form = Provider.of<RegisterForm>(context, listen: false);
+    form.email = emailController.text;
+    form.password = passwordController.text;
+    Navigator.push(
+      context,
+      CupertinoPageRoute(builder: (_) => const RegisterCorp()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         navigationBar: const CupertinoNavigationBar(
-          middle: Text('Register'),
+          middle: Text('Register Account'),
         ),
-        child: Padding(
-            padding: const EdgeInsets.only(left: 25, right: 25),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                height: 100,
-                // width: 300,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.grey.shade100,
-                ),
-                child: Column(
-                  children: [
-                    CupertinoTextField(
-                      placeholder: 'Required',
-                      prefix: const Text(
-                        'Email',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      decoration: const BoxDecoration(),
-                      controller: emailController,
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const Text('Employee Account',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0)),
+          const SizedBox(height: 30),
+          const Text('To register employee account.', style: TextStyle()),
+          const SizedBox(height: 35),
+          InputLayout(child: [
+            SizedBox(
+                height: 50,
+                child: CupertinoTextField(
+                  placeholder: 'Required',
+                  prefix: const Text(
+                    'Email',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
                     ),
-                    const Divider(
-                      thickness: 1,
-                      color: Colors.grey,
+                  ),
+                  decoration: const BoxDecoration(),
+                  controller: emailController,
+                )),
+            SizedBox(
+                height: 50,
+                child: CupertinoTextField(
+                  placeholder: 'Required',
+                  prefix: const Text(
+                    'Password',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
                     ),
-                    CupertinoTextField(
-                      placeholder: 'Required',
-                      prefix: const Text(
-                        'Password',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      decoration: const BoxDecoration(),
-                      controller: passwordController,
-                    ),
-                  ],
-                ),
-              ),
-            )));
+                  ),
+                  decoration: const BoxDecoration(),
+                  controller: passwordController,
+                ))
+          ]),
+          const SizedBox(height: 45),
+          RegisterButtonLayout(
+            // TODO: add prev page
+            onNext: (!_valid) ? null : _nextPage,
+          ),
+        ]));
   }
 }

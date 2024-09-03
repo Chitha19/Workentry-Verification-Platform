@@ -15,12 +15,6 @@ class SelectedCorp extends StatefulWidget {
 class _SelectedCorpState extends State<SelectedCorp> {
   late int index = 0;
 
-  @override
-  void dispose() {
-    print("========== selected corp dispose");
-    super.dispose();
-  }
-
   void _showDialog(Widget child) {
     showCupertinoModalPopup<void>(
       context: context,
@@ -46,51 +40,53 @@ class _SelectedCorpState extends State<SelectedCorp> {
   Widget build(BuildContext context) {
     final form = Provider.of<RegisterForm>(context, listen: false);
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        const Text('Selected your coperate: '),
-        const SizedBox(height: 7),
-        CupertinoButton.filled(
-            onPressed: () {
-              _showDialog(
-                CupertinoPicker(
-                  magnification: 1.22,
-                  squeeze: 1.2,
-                  useMagnifier: true,
-                  itemExtent: 32.0,
-                  scrollController: FixedExtentScrollController(
-                    initialItem: index,
+    return SizedBox(
+        height: 50,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const Text('Coperate',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                )),
+            Flexible(
+                child: CupertinoButton(
+              padding: const EdgeInsets.all(10),
+              alignment: Alignment.centerLeft,
+              onPressed: () {
+                _showDialog(
+                  CupertinoPicker(
+                    magnification: 1.22,
+                    squeeze: 1.2,
+                    useMagnifier: true,
+                    itemExtent: 32.0,
+                    scrollController: FixedExtentScrollController(
+                      initialItem: index,
+                    ),
+                    onSelectedItemChanged: (int selectedItem) {
+                      setState(() {
+                        index = selectedItem;
+                      });
+                      form.corp = widget.corps[selectedItem];
+                    },
+                    children:
+                        List<Widget>.generate(widget.corps.length, (int i) {
+                      return Center(
+                          child: Text(
+                        widget.corps[i].name,
+                      ));
+                    }),
                   ),
-                  onSelectedItemChanged: (int selectedItem) {
-                    setState(() {
-                      index = selectedItem;
-                    });
-                    form.corp = widget.corps[selectedItem];
-                    // print('selected: ${datas[selectedItem].name}');
-                  },
-                  children: List<Widget>.generate(widget.corps.length, (int i) {
-                    return Center(
-                        child: Text(
-                      widget.corps[i].name,
-                    ));
-                  }),
-                ),
-              );
-            },
-            child: Center(
+                );
+              },
               child: Text(
                 widget.corps[index].name,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 softWrap: false,
-                style: const TextStyle(
-                  fontSize: 20.0,
-                ),
               ),
-            ))
-      ],
-    );
+            )),
+          ],
+        ));
   }
 }

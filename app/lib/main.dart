@@ -1,12 +1,11 @@
 import 'package:app/Screens/error_page.dart';
-// import 'package:app/Screens/register.dart';
 import 'package:app/Screens/register_user.dart';
 import 'package:app/States/profile.dart';
 import 'package:app/States/register_form.dart';
 import 'package:flutter/cupertino.dart';
-// import 'package:app/Screens/check_in.dart';
 import 'package:app/api/profile.dart';
 import 'package:provider/provider.dart';
+// import 'package:app/Screens/check_in.dart';
 // import 'package:app/Widgets/selected_corp.dart';
 
 Future<void> main() async {
@@ -60,7 +59,6 @@ class _Home extends State<Home> {
 
             if (snapshot.hasData) {
               // return const Checkin();
-              // return const Register();
               return const RegisterUser();
             }
 

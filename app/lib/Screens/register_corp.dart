@@ -1,3 +1,6 @@
+import 'package:app/Screens/register_card.dart';
+import 'package:app/Widgets/input_layout.dart';
+import 'package:app/Widgets/register_btn.dart';
 import 'package:app/Widgets/selected_site.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:app/api/corps.dart';
@@ -7,14 +10,14 @@ import 'package:provider/provider.dart';
 // import 'package:app/Screens/error_page.dart';
 // import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-class Register extends StatefulWidget {
-  const Register({super.key});
+class RegisterCorp extends StatefulWidget {
+  const RegisterCorp({super.key});
 
   @override
-  State<Register> createState() => _Register();
+  State<RegisterCorp> createState() => _RegisterCorp();
 }
 
-class _Register extends State<Register> {
+class _RegisterCorp extends State<RegisterCorp> {
   final Future<List<TCorp>> corps = fetchTCorps();
 
   @override
@@ -33,51 +36,69 @@ class _Register extends State<Register> {
     super.dispose();
   }
 
+  void _nextPage() {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(builder: (_) => const RegisterCard()),
+    );
+  }
+
+  void _prevPage() {
+    Navigator.pop(context, true);
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         navigationBar: const CupertinoNavigationBar(
-          middle: Text('Register'),
+          middle: Text('Register Coperate'),
         ),
-        child: Padding(
-            padding: const EdgeInsets.only(left: 25, right: 25),
-            child: Center(
-                child: FutureBuilder<List<TCorp>>(
-                    future: corps,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        print("========== error : ${snapshot.error}");
-                        return const Center(
-                            child: Text("Server error. Please try again later.",
-                                style: TextStyle(
-                                    fontSize: 24.0,
-                                    fontWeight: FontWeight.bold)));
-                      }
+        child: FutureBuilder<List<TCorp>>(
+            future: corps,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                print("========== error : ${snapshot.error}");
+                return const Center(
+                    child: Text("Server error. Please try again later.",
+                        style: TextStyle(
+                            fontSize: 24.0, fontWeight: FontWeight.bold)));
+              }
 
-                      if (snapshot.hasData) {
-                        if (snapshot.data == null || snapshot.data!.isEmpty) {
-                          return const Center(
-                              child: Text(
-                                  "Server error. Please try again later.",
-                                  style: TextStyle(
-                                      fontSize: 24.0,
-                                      fontWeight: FontWeight.bold)));
-                        }
+              if (snapshot.hasData) {
+                if (snapshot.data == null || snapshot.data!.isEmpty) {
+                  return const Center(
+                      child: Text("Server error. Please try again later.",
+                          style: TextStyle(
+                              fontSize: 24.0, fontWeight: FontWeight.bold)));
+                }
 
-                        var datas = snapshot.data!;
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SelectedCorp(corps: datas),
-                            const SizedBox(height: 30),
-                            const SelectedSite(),
-                          ],
-                        );
-                      }
+                var datas = snapshot.data!;
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  // mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Coperate Location',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 28.0)),
+                    const SizedBox(height: 30),
+                    const Text('To register employee working location.',
+                        style: TextStyle()),
+                    const SizedBox(height: 35),
+                    InputLayout(child: [
+                      SelectedCorp(corps: datas),
+                      const SelectedSite()
+                    ]),
+                    const SizedBox(height: 45),
+                    RegisterButtonLayout(
+                      onPrev: _prevPage,
+                      onNext: _nextPage,
+                    ),
+                  ],
+                );
+              }
 
-                      return const CupertinoActivityIndicator();
-                    }))));
+              return const CupertinoActivityIndicator();
+            }));
   }
 }
 
