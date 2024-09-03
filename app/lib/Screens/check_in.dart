@@ -1,5 +1,5 @@
+import 'package:app/Screens/error_page.dart';
 import 'package:app/Screens/face_scan.dart';
-import 'package:app/Screens/no_camera_available.dart';
 import 'package:camera/camera.dart';
 import 'package:app/States/profile.dart';
 import 'package:flutter/cupertino.dart';
@@ -34,7 +34,7 @@ class Checkin extends StatelessWidget {
                       context,
                       CupertinoPageRoute(builder: (context) {
                         if (cameras.isEmpty) {
-                          return const NoCameraAvailable();
+                          return const ErrorPage(tabName: "Face Scan", message: "No camera available.");
                         }
                         final camera = cameras.firstWhere(
                           (element) => element.lensDirection == CameraLensDirection.front, 
