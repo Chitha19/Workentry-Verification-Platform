@@ -1,5 +1,6 @@
 import 'package:app/Screens/error_page.dart';
-import 'package:app/Screens/register_user.dart';
+import 'package:app/Screens/register.dart';
+// import 'package:app/Screens/register_user.dart';
 import 'package:app/States/profile.dart';
 import 'package:app/States/register_form.dart';
 import 'package:flutter/cupertino.dart';
@@ -59,7 +60,8 @@ class _Home extends State<Home> {
 
             if (snapshot.hasData) {
               // return const Checkin();
-              return const RegisterUser();
+              // return const RegisterUser();
+              return const RegisterAccount();
             }
 
             return const CupertinoActivityIndicator();

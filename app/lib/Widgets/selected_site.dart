@@ -36,56 +36,52 @@ class _SelectedSiteState extends State<SelectedSite> {
   Widget build(BuildContext context) {
     final form = Provider.of<RegisterForm>(context, listen: false);
 
-    return SizedBox(
-        height: 50,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const Text('Site',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                )),
-            Flexible(
-                child: Consumer<RegisterForm>(
-                    builder: (_, value, __) => CupertinoButton(
-                        padding: const EdgeInsets.all(10),
-                        alignment: Alignment.centerLeft,
-                        onPressed: (value.corp == null)
-                            ? null
-                            : () {
-                                _showDialog(
-                                  CupertinoPicker(
-                                    magnification: 1.22,
-                                    squeeze: 1.2,
-                                    useMagnifier: true,
-                                    itemExtent: 32.0,
-                                    scrollController:
-                                        FixedExtentScrollController(
-                                      initialItem: 0,
-                                    ),
-                                    onSelectedItemChanged: (int selectedItem) {
-                                      form.site =
-                                          value.corp!.sites[selectedItem];
-                                    },
-                                    children: List<Widget>.generate(
-                                        value.corp!.sites.length, (int i) {
-                                      return Center(
-                                          child: Text(
-                                        value.corp!.sites[i].name,
-                                      ));
-                                    }),
-                                  ),
-                                );
-                              },
-                        child: Text(
-                          (value.site == null)
-                              ? "Selected Site First"
-                              : value.site!.name,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          softWrap: false,
-                        ))))
-          ],
-        ));
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const Text('Location',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            )),
+        Flexible(
+            child: Consumer<RegisterForm>(
+                builder: (_, value, __) => CupertinoButton(
+                    padding: const EdgeInsets.all(10),
+                    alignment: Alignment.centerLeft,
+                    onPressed: (value.corp == null)
+                        ? null
+                        : () {
+                            _showDialog(
+                              CupertinoPicker(
+                                magnification: 1.22,
+                                squeeze: 1.2,
+                                useMagnifier: true,
+                                itemExtent: 32.0,
+                                scrollController: FixedExtentScrollController(
+                                  initialItem: 0,
+                                ),
+                                onSelectedItemChanged: (int selectedItem) {
+                                  form.site = value.corp!.sites[selectedItem];
+                                },
+                                children: List<Widget>.generate(
+                                    value.corp!.sites.length, (int i) {
+                                  return Center(
+                                      child: Text(
+                                    value.corp!.sites[i].name,
+                                  ));
+                                }),
+                              ),
+                            );
+                          },
+                    child: Text(
+                      (value.site == null)
+                          ? "Selected Coperate First"
+                          : value.site!.name,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      softWrap: false,
+                    ))))
+      ],
+    );
   }
 }

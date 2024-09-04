@@ -1,7 +1,7 @@
 import 'package:app/Screens/register_corp.dart';
+import 'package:app/Service/random_password.dart';
 import 'package:app/Widgets/register_btn.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:math';
 import 'package:app/Widgets/input_layout.dart';
 import 'package:app/States/register_form.dart';
 import 'package:provider/provider.dart';
@@ -14,19 +14,17 @@ class RegisterUser extends StatefulWidget {
 }
 
 class _RegisterUserState extends State<RegisterUser> {
-  final String _chars =
-      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-  final Random _rnd = Random();
   late TextEditingController emailController;
   late TextEditingController passwordController;
   bool _emailValid = false;
   bool _passwordValid = true;
+  bool get _valid => (_emailValid && _passwordValid);
 
   @override
   void initState() {
     super.initState();
     emailController = TextEditingController();
-    passwordController = TextEditingController(text: randomPassword(10));
+    passwordController = TextEditingController(text: RandomPassword().password);
 
     emailController.addListener(() {
       if (emailController.text.characters.isEmpty) {
@@ -60,13 +58,6 @@ class _RegisterUserState extends State<RegisterUser> {
     super.dispose();
   }
 
-  String randomPassword(int length) {
-    return String.fromCharCodes(Iterable.generate(
-        length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
-  }
-
-  bool get _valid => (_emailValid && _passwordValid);
-
   void _nextPage() {
     RegisterForm form = Provider.of<RegisterForm>(context, listen: false);
     form.email = emailController.text;
@@ -84,10 +75,10 @@ class _RegisterUserState extends State<RegisterUser> {
           middle: Text('Register Account'),
         ),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Text('Employee Account',
+          const Text('Create Account',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0)),
           const SizedBox(height: 30),
-          const Text('To register employee account.', style: TextStyle()),
+          const Text('To create employee account.'),
           const SizedBox(height: 35),
           InputLayout(child: [
             SizedBox(

@@ -28,7 +28,6 @@ class InputLayout extends StatelessWidget {
         child: Center(
             child: Container(
                 padding: const EdgeInsets.all(12),
-                // height: child.length * 70,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   color: Colors.grey.shade100,

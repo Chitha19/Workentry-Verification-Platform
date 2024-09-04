@@ -40,53 +40,50 @@ class _SelectedCorpState extends State<SelectedCorp> {
   Widget build(BuildContext context) {
     final form = Provider.of<RegisterForm>(context, listen: false);
 
-    return SizedBox(
-        height: 50,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const Text('Coperate',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                )),
-            Flexible(
-                child: CupertinoButton(
-              padding: const EdgeInsets.all(10),
-              alignment: Alignment.centerLeft,
-              onPressed: () {
-                _showDialog(
-                  CupertinoPicker(
-                    magnification: 1.22,
-                    squeeze: 1.2,
-                    useMagnifier: true,
-                    itemExtent: 32.0,
-                    scrollController: FixedExtentScrollController(
-                      initialItem: index,
-                    ),
-                    onSelectedItemChanged: (int selectedItem) {
-                      setState(() {
-                        index = selectedItem;
-                      });
-                      form.corp = widget.corps[selectedItem];
-                    },
-                    children:
-                        List<Widget>.generate(widget.corps.length, (int i) {
-                      return Center(
-                          child: Text(
-                        widget.corps[i].name,
-                      ));
-                    }),
-                  ),
-                );
-              },
-              child: Text(
-                widget.corps[index].name,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                softWrap: false,
-              ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const Text('Coperate',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
             )),
-          ],
-        ));
+        Flexible(
+            child: CupertinoButton(
+          padding: const EdgeInsets.all(10),
+          alignment: Alignment.centerLeft,
+          onPressed: () {
+            _showDialog(
+              CupertinoPicker(
+                magnification: 1.22,
+                squeeze: 1.2,
+                useMagnifier: true,
+                itemExtent: 32.0,
+                scrollController: FixedExtentScrollController(
+                  initialItem: index,
+                ),
+                onSelectedItemChanged: (int selectedItem) {
+                  setState(() {
+                    index = selectedItem;
+                  });
+                  form.corp = widget.corps[selectedItem];
+                },
+                children: List<Widget>.generate(widget.corps.length, (int i) {
+                  return Center(
+                      child: Text(
+                    widget.corps[i].name,
+                  ));
+                }),
+              ),
+            );
+          },
+          child: Text(
+            widget.corps[index].name,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            softWrap: false,
+          ),
+        )),
+      ],
+    );
   }
 }

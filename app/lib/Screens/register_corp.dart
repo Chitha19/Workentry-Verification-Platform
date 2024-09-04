@@ -81,8 +81,7 @@ class _RegisterCorp extends State<RegisterCorp> {
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 28.0)),
                     const SizedBox(height: 30),
-                    const Text('To register employee working location.',
-                        style: TextStyle()),
+                    const Text('To register employee working location.'),
                     const SizedBox(height: 35),
                     InputLayout(child: [
                       SelectedCorp(corps: datas),
