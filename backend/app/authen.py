@@ -1,12 +1,11 @@
-from fastapi import HTTPException, Depends, status
+from fastapi import HTTPException, Depends, status, WebSocket, Header, WebSocketException
 from fastapi.security import OAuth2PasswordBearer
-from typing import Annotated
+from typing import Annotated, Union
 from passlib.context import CryptContext
 import jwt
 from jwt.exceptions import InvalidTokenError
-from model import Employee
 from datetime import datetime, timedelta, timezone
-from db import get_emp
+from db import get_emp, get_emp_by_email
 
 SECRET_KEY = "7a28547b0585580e129d01c1f2b4633b6dc3e248f71530ea35c8765571e4c730"
 ALGORITHM = "HS256"
@@ -29,38 +28,43 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def validate_token(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail="could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
-
-        emp = get_emp(username)
-        if emp is None:
+        if username == "":
             raise credentials_exception
-        
-        return emp
     except InvalidTokenError:
         raise credentials_exception
+    emp = get_emp(username)
+    if emp is not None:
+        return emp
+    emp_by_email = get_emp_by_email(username)
+    if emp_by_email is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="user is not exists.")
+    return emp_by_email
 
-def verify_token(token: str) -> str:
+async def validate_token_for_ws(websocket: WebSocket, authorization: Annotated[Union[str, None], Header()] = None):
+    if authorization is None or authorization == "":
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+
+    token = authorization.removeprefix("Bearer ")
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
-        if username is None:
-            raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-        return username
+        if username == "":
+            raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
     except InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-
-async def middleware_authen(token: str = Depends(oauth2_scheme)):
-    username = verify_token(token)
-    user = users_collection.find_one({"username": username})
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+    emp = get_emp(username)
+    if emp is not None:
+        return emp
+    emp_by_email = get_emp_by_email(username)
+    if emp_by_email is None:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+    return emp_by_email
