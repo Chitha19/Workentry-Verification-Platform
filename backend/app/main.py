@@ -1,6 +1,7 @@
-from fastapi import FastAPI, WebSocket, HTTPException, status, Depends
+from fastapi import FastAPI, WebSocket, HTTPException, status, Depends, Form, UploadFile
 from typing import Annotated
-from db import get_corps, is_emp_exist, register, is_site_exist, get_emp, get_emp_by_email
+from pydantic import EmailStr
+from db import get_corps, is_emp_exist, register, is_site_exist, get_emp, get_emp_by_email, is_emp_exist_by_email
 from authen import hashed_password, verify_password, create_access_token, validate_token, validate_token_for_ws
 from model import Corp, Employee, Login
 
@@ -39,10 +40,42 @@ async def register_emp(emp: Employee):
     return { "message": "register success." }
 
 @app.post(
+    "/api/v2/emp/",
+    response_description="Register new employee.",
+    status_code=status.HTTP_201_CREATED,
+    # response_model_by_alias=False,
+)
+async def register_emp_v2(
+    emp: Annotated[Employee, Depends(validate_token)],
+    email: Annotated[EmailStr, Form()],
+    password: Annotated[str, Form()],
+    site_id: Annotated[str, Form()],
+    img: UploadFile,
+):
+    print(email, password, site_id, img.filename)
+
+    # if not is_site_exist(form.site_id):
+    #     raise HTTPException(status_code=400, detail="SiteID is not exists")
+
+    # if is_emp_exist_by_email(form.email):
+    #     raise HTTPException(status_code=400, detail="Email already exists")
+    
+    
+    # emp.password = hashed_password(emp.password)
+    # emp = emp.model_dump(by_alias=True, exclude=["id"])
+
+    # try:
+    #     register(emp)
+    # except Exception as e:
+    #     raise HTTPException(status_code=400, detail=f"Error registering employee: {str(e)}")
+
+    return { "message": "register success." }
+
+@app.post(
     "/api/v1/login/",
     response_model_by_alias=False,
 )
-async def register_emp(login: Login):
+async def gentoken(login: Login):
     emp = get_emp(username=login.username)
     if emp is None:
         emp = get_emp_by_email(email=login.username)

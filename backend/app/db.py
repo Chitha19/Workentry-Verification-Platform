@@ -22,6 +22,11 @@ def is_emp_exist(username: str):
         return True
     return False
 
+def is_emp_exist_by_email(email: str):
+    if get_emp_by_email(email) is not None:
+        return True
+    return False
+
 def is_site_exist(id: str):
     if db.corp_site.find_one({"_id": ObjectId(id)}) is not None:
         return True

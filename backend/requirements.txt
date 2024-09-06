@@ -1,6 +1,7 @@
 fastapi==0.111.1
-websockets
+websockets==12.0
 numpy==2.0.0
 pymongo==4.8.0
 pyjwt==2.9.0
 passlib[bcrypt]
+python-multipart==0.0.9
