@@ -1,27 +1,8 @@
 import 'dart:async';
+import 'package:app/Service/stream_image.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
-
-class Throttler {
-  Throttler({required this.milliSeconds});
-
-  final int milliSeconds;
-
-  int? lastActionTime;
-
-  void run(VoidCallback action) {
-    if (lastActionTime == null) {
-      action();
-      lastActionTime = DateTime.now().millisecondsSinceEpoch;
-    } else {
-      if (DateTime.now().millisecondsSinceEpoch - lastActionTime! >
-          (milliSeconds)) {
-        action();
-        lastActionTime = DateTime.now().millisecondsSinceEpoch;
-      }
-    }
-  }
-}
+import 'package:app/Screens/error_page.dart';
 
 class FaceScan extends StatefulWidget {
   const FaceScan({super.key, required this.camera});
@@ -35,18 +16,19 @@ class FaceScan extends StatefulWidget {
 class FaceScanState extends State<FaceScan> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
-  late Throttler throttler;
-  late StreamSubscription<int> timer;
+  late StreamImage _stream;
 
   @override
   void initState() {
     super.initState();
-    throttler = Throttler(milliSeconds: 500);
     _controller = CameraController(widget.camera, ResolutionPreset.medium,
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.bgra8888 // support iOS only
         );
     _initializeControllerFuture = _controller.initialize();
+    _stream = StreamImage(
+      onTimeout: invalidFaceVerification,
+    );
     faceVerification();
   }
 
@@ -56,25 +38,30 @@ class FaceScanState extends State<FaceScan> {
       return;
     }
 
-    // setState(() {});
-    Future.delayed(const Duration(milliseconds: 500));
-    
-    timer = Stream.periodic(const Duration(milliseconds: 500), (v) => v).listen((count) async {
-      throttler.run(() async {
-        _controller.startImageStream((image) async {
-          // TODO: stream image to backend
-        });
-
-        Future.delayed(const Duration(milliseconds: 50), () async {
-          await _controller.stopImageStream();
-        });
+    _stream.start();
+    print("========= start stream");
+    _controller.startImageStream((image) async {
+      _stream.stream(() {
+        // TODO: stream image to backend
+        print("========= stream");
       });
     });
   }
 
+  void invalidFaceVerification() {
+    print("========= invalid face scanning.");
+    _controller
+        .stopImageStream()
+        .then((_) => Navigator.push(context, CupertinoPageRoute(builder: (_) {
+              return const ErrorPage(
+                  tabName: "Face Scan", message: "Invalid face scanning.");
+            })));
+  }
+
   @override
-  void dispose() {
+  void dispose() async {
     _controller.dispose();
+    _stream.cancel();
     super.dispose();
   }
 
@@ -85,8 +72,8 @@ class FaceScanState extends State<FaceScan> {
           middle: Text('Face Scan'),
         ),
         child: Center(
-          // widthFactor: MediaQuery.of(context).size.width,
-          // heightFactor: MediaQuery.of(context).size.height,
+          widthFactor: double.infinity,
+          heightFactor: double.infinity,
           child: FutureBuilder<void>(
               future: _initializeControllerFuture,
               builder: (context, snapshot) =>

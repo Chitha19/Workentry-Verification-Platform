@@ -47,12 +47,4 @@ class RegisterForm extends ChangeNotifier {
     _password = s;
     notifyListeners();
   }
-
-  // void _init() {
-  //   _corp = null;
-  //   _site = null;
-  //   _card = null;
-  //   _email = null;
-  //   _password = randomPassword(10);
-  // }
 }

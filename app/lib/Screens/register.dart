@@ -86,80 +86,88 @@ class _RegisterAccountState extends State<RegisterAccount> {
           middle: Text('Register Account'),
         ),
         child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Center(
-              child: FutureBuilder<List<TCorp>>(
-                  future: corps,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return const Text("Server error. Please try again later.",
+          padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+          child: FutureBuilder<List<TCorp>>(
+              future: corps,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return const Center(
+                    child: Text("Server error. Please try again later.",
+                        style: TextStyle(
+                            fontSize: 24.0, fontWeight: FontWeight.bold)),
+                  );
+                }
+
+                if (snapshot.hasData) {
+                  if (snapshot.data == null || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text("Server error. Please try again later.",
                           style: TextStyle(
-                              fontSize: 24.0, fontWeight: FontWeight.bold));
-                    }
+                              fontSize: 24.0, fontWeight: FontWeight.bold)),
+                    );
+                  }
 
-                    if (snapshot.hasData) {
-                      if (snapshot.data == null || snapshot.data!.isEmpty) {
-                        return const Text(
-                            "Server error. Please try again later.",
-                            style: TextStyle(
-                                fontSize: 24.0, fontWeight: FontWeight.bold));
-                      }
-
-                      var datas = snapshot.data!;
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 66),
-                          const Text('Create Account',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 28.0)),
-                                  const SizedBox(height: 12),
-                          const Text('To create an employee account.'),
-                          const SizedBox(height: 26),
-                          InputPartLayout(
-                              title: 'Account',
-                              children: [
-                                CupertinoTextField(
-                                  placeholder: 'Required',
-                                  prefix: const Text(
-                                    'Email',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  decoration: const BoxDecoration(),
-                                  controller: emailController,
-                                ),
-                                CupertinoTextField(
-                                  placeholder: 'Required',
-                                  prefix: const Text(
-                                    'Password',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  decoration: const BoxDecoration(),
-                                  controller: passwordController,
-                                )
-                              ]),
-                          InputPartLayout(
-                            title: 'Coperate',
+                  var datas = snapshot.data!;
+                  return ListView(
+                    children: [
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 26.0, bottom: 28.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SelectedCorp(corps: datas),
-                              const SelectedSite()
+                              Text('Create Account',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 28.0)),
+                              SizedBox(height: 12),
+                              Text('To create an employee account.'),
                             ],
                           ),
-                          const SizedBox(height: 22),
-                          RegisterButtonLayout(
-                            // TODO: add prev page
-                            onNext: (!_valid) ? null : _nextPage,
-                          )
+                        ),
+                      ),
+                      InputPartLayout(title: 'Account', children: [
+                        CupertinoTextField(
+                          placeholder: 'Required',
+                          prefix: const Text(
+                            'Email',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          decoration: const BoxDecoration(),
+                          controller: emailController,
+                        ),
+                        CupertinoTextField(
+                          placeholder: 'Required',
+                          prefix: const Text(
+                            'Password',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          decoration: const BoxDecoration(),
+                          controller: passwordController,
+                        )
+                      ]),
+                      InputPartLayout(
+                        title: 'Coperate',
+                        children: [
+                          SelectedCorp(corps: datas),
+                          const SelectedSite()
                         ],
-                      );
-                    }
+                      ),
+                      const SizedBox(height: 22),
+                      RegisterButtonLayout(
+                        // TODO: add prev page
+                        onNext: (!_valid) ? null : _nextPage,
+                      )
+                    ],
+                  );
+                }
 
-                    return const CupertinoActivityIndicator();
-                  }),
-            )));
+                return const CupertinoActivityIndicator();
+              }),
+        ));
   }
 }
