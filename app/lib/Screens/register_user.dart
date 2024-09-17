@@ -1,8 +1,8 @@
 import 'package:app/Screens/register_corp.dart';
 import 'package:app/Service/random_password.dart';
-import 'package:app/Widgets/register_btn.dart';
+import 'package:app/widgets/register_btn.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:app/Widgets/input_layout.dart';
+import 'package:app/widgets/input_layout.dart';
 import 'package:app/States/register_form.dart';
 import 'package:provider/provider.dart';
 

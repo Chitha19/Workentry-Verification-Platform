@@ -19,14 +19,15 @@ class Token {
     );
   }
 
-  Future<void> store() async {
-    await _storage.write(key: 'access_token', value: token);
+  void store() {
+    _storage.write(key: 'access_token', value: '$type $token');
   }
 }
 
 Future<http.Response> login(String email, String password) {
   return http.post(
     Uri.parse('http://localhost:8000/api/v1/login/'),
+    // Uri.parse('http://172.23.19.85:8000/api/v1/login/'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },

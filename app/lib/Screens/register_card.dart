@@ -1,12 +1,16 @@
 import 'package:app/Screens/take_idcard.dart';
-import 'package:app/Widgets/register_btn.dart';
+import 'package:app/widgets/utils.dart';
+import 'package:app/widgets/register_btn.dart';
 import 'package:app/Screens/error_page.dart';
+import 'package:app/api/register_emp.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:app/States/register_form.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class RegisterCard extends StatefulWidget {
   const RegisterCard({super.key});
@@ -20,8 +24,16 @@ class _RegisterCardState extends State<RegisterCard> {
     Navigator.pop(context, true);
   }
 
-  void _submit() {
-    Navigator.pop(context, true);
+  void _submit() async {
+    Utils(context).stopLoading();
+    register(context).then((response) {
+      Utils(context).stopLoading();
+      if (response.statusCode == 201) {
+        print('success');
+        return;
+      }
+      print(response.statusCode);
+    });
   }
 
   @override

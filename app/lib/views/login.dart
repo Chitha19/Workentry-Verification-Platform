@@ -16,8 +16,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  late TextEditingController emailController;
-  late TextEditingController passwordController;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   bool _emailValid = false;
   bool _passwordValid = true;
   bool get _valid => (_emailValid && _passwordValid);
@@ -25,8 +25,6 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
 
     emailController.addListener(() {
       if (emailController.text.characters.isEmpty) {
@@ -65,6 +63,11 @@ class _LoginState extends State<Login> {
     login(emailController.text, passwordController.text).then((response) {
       Utils(context).stopLoading();
 
+      if (response.statusCode >= 400 && response.statusCode < 500) {
+        Utils(context).showError('Email or Password is Incorrect');
+        return;
+      }
+
       if (response.statusCode == 200) {
         final raw = json.decode(response.body) as Map<String, dynamic>;
         final token = Token.fromJson(raw);
@@ -79,11 +82,6 @@ class _LoginState extends State<Login> {
         Navigator.of(context).pushAndRemoveUntil(
             CupertinoPageRoute(builder: (context) => const Home()),
             (Route route) => false);
-        return;
-      }
-
-      if (response.statusCode >= 400 && response.statusCode < 500) {
-        Utils(context).showError('Email or Password is Incorrect');
         return;
       }
 

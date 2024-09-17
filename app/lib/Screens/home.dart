@@ -53,7 +53,7 @@ class _HomeState extends State<Home> {
                       fontSize: 32.0)),
               Consumer<Profile>(
                   builder: (_, value, __) => Text(
-                      (value.name == "") ? "Alongkorn T." : value.name,
+                      value.name,
                       style: const TextStyle(
                           fontFamily: "Netflix",
                           fontWeight: FontWeight.bold,

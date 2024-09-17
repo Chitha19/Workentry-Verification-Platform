@@ -1,13 +1,13 @@
 import 'package:app/Screens/register_card.dart';
 import 'package:app/Service/random_password.dart';
-import 'package:app/Widgets/input_part_layout.dart';
-import 'package:app/Widgets/register_btn.dart';
+import 'package:app/widgets/input_part_layout.dart';
+import 'package:app/widgets/register_btn.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:app/api/corps.dart';
 import 'package:app/States/register_form.dart';
 import 'package:provider/provider.dart';
-import 'package:app/Widgets/selected_corp.dart';
-import 'package:app/Widgets/selected_site.dart';
+import 'package:app/widgets/selected_corp.dart';
+import 'package:app/widgets/selected_site.dart';
 
 class RegisterAccount extends StatefulWidget {
   const RegisterAccount({super.key});
@@ -17,7 +17,7 @@ class RegisterAccount extends StatefulWidget {
 }
 
 class _RegisterAccountState extends State<RegisterAccount> {
-  final Future<List<TCorp>> corps = fetchTCorps();
+  late Future<List<TCorp>> corps;
   late TextEditingController emailController;
   late TextEditingController passwordController;
   bool _emailValid = false;
@@ -27,6 +27,7 @@ class _RegisterAccountState extends State<RegisterAccount> {
   @override
   void initState() {
     super.initState();
+    corps = fetchTCorps(context);
     emailController = TextEditingController();
     passwordController = TextEditingController(text: RandomPassword().password);
 

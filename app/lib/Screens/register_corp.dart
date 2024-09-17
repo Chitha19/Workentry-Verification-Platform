@@ -1,10 +1,10 @@
 import 'package:app/Screens/register_card.dart';
-import 'package:app/Widgets/input_layout.dart';
-import 'package:app/Widgets/register_btn.dart';
-import 'package:app/Widgets/selected_site.dart';
+import 'package:app/widgets/input_layout.dart';
+import 'package:app/widgets/register_btn.dart';
+import 'package:app/widgets/selected_site.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:app/api/corps.dart';
-import 'package:app/Widgets/selected_corp.dart';
+import 'package:app/widgets/selected_corp.dart';
 import 'package:app/States/register_form.dart';
 import 'package:provider/provider.dart';
 // import 'package:app/Screens/error_page.dart';
