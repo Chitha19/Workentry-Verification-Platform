@@ -1,9 +1,8 @@
 import 'dart:convert';
 
 import 'package:app/Service/random_password.dart';
-import 'package:app/apis/coperate.dart';
 import 'package:app/models/coperate.dart';
-import 'package:app/services/auth_service.dart';
+import 'package:app/services/api_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
@@ -52,33 +51,25 @@ class RegisterController extends GetxController
   }
 
   void loadCoperate() async {
-    try {
-      final response = await fetchCoperate(AuthService.to.token());
-      if (response.statusCode >= 400 && response.statusCode < 500) {
-        change(null, status: RxStatus.empty());
-        await Get.offNamed('/login');
+    ApiService.to.getCoperates().then((response) {
+      if (response.status.isOk) {
+        final body = json.decode(response.bodyString!) as List<dynamic>;
+        final coperate = body
+            .map((e) => Coperate.fromJson(e as Map<String, dynamic>))
+            .toList();
+        corps(coperate);
+        setCorp(coperate[0]);
+        change(coperate, status: RxStatus.success());
         return;
       }
-      if (response.statusCode >= 500) {
-        change(null,
-            status: RxStatus.error(
-                'Something went wrong,\nPlease try again later.'));
-        return;
-      }
-
-      final raw = json.decode(response.body) as List<dynamic>;
-      final coperate =
-          raw.map((e) => Coperate.fromJson(e as Map<String, dynamic>)).toList();
-
-      corps(coperate);
-      setCorp(coperate[0]);
-
-      change(coperate, status: RxStatus.success());
-    } catch (e) {
       change(null,
           status:
               RxStatus.error('Something went wrong,\nPlease try again later.'));
-    }
+    }).onError((error, stackTrace) {
+      change(null,
+          status:
+              RxStatus.error('Something went wrong,\nPlease try again later.'));
+    });
   }
 
   void setCorp(Coperate corp) {
@@ -90,7 +81,5 @@ class RegisterController extends GetxController
     selectedSite(site);
   }
 
-  void gotoCardCapture() {
-    
-  }
+  void gotoCardCapture() {}
 }

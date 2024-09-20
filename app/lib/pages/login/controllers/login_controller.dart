@@ -1,15 +1,20 @@
+// import 'dart:convert';
+
+// import 'package:app/models/user.dart';
 import 'dart:convert';
 
-import 'package:app/models/user.dart';
-import 'package:app/widgets/utils.dart';
 import 'package:app/models/authen.dart';
-import 'package:app/services/auth_service.dart';
+import 'package:app/services/api_service.dart';
+import 'package:app/widgets/utils.dart';
+// import 'package:app/models/authen.dart';
+// import 'package:app/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
-import '../../../apis/auth.dart';
-
 class LoginController extends GetxController {
+  static const _storage = FlutterSecureStorage();
+
   final emailController = TextEditingController().obs;
   final passwordController = TextEditingController().obs;
   final _emailValid = false.obs;
@@ -18,8 +23,7 @@ class LoginController extends GetxController {
 
   @override
   void onInit() {
-    print(
-        '========= LoginController oninit token is -> ${AuthService.to.token()}');
+    print('========= LoginController on init');
     super.onInit();
 
     emailController().addListener(() {
@@ -41,7 +45,6 @@ class LoginController extends GetxController {
 
   @override
   void onClose() {
-    print('========= LoginController onclose');
     emailController().dispose();
     passwordController().dispose();
     super.onClose();
@@ -50,39 +53,29 @@ class LoginController extends GetxController {
   void submit() {
     var context = Get.context!;
     Utils(context).startLoading();
-    loginWithUser(emailController().text, passwordController().text)
-        .then((response) {
+
+    ApiService.to
+        .login(emailController().text, passwordController().text)
+        .then((response) async {
       Utils(context).stopLoading();
 
-      if (response.statusCode >= 400 && response.statusCode < 500) {
-        Utils(context).showError('Email or Password is Incorrect');
+      if (response.status.isOk) {
+        final body = json.decode(response.bodyString!) as Map<String, dynamic>;
+        final auth = Auth.fromJson(body);
+        await _storage.write(key: 'access_token', value: auth.token);
+        Get.offAllNamed('/');
         return;
       }
 
-      if (response.statusCode >= 500) {
-        Utils(context)
-            .showError('Something went wrong. Please try again later');
+      if (response.status.code == 400) {
+        Utils(context).showError('Email or Password is invalid.');
         return;
       }
 
-      final body = json.decode(response.body) as Map<String, dynamic>;
-      final user = User.fromJson(body);
-
-      print('========= LoginController user: $user');
-
-      AuthService.to.user(user);
-      AuthService.to.isAuth(true);
-      Auth().read().then((token) {
-        // print(
-        //     '========= LoginController finshed login previos=${Get.previousRoute} raw=${context.}');
-        if (token != null) AuthService.to.token(token);
-        // Get.back(result: token);
-        Get.offNamed('/');
-      });
-    }).onError((error, stack) {
+      Utils(context).showError('Something went wrong. Please try again later');
+    }).onError((error, stackTrace) {
       Utils(context).stopLoading();
       Utils(context).showError('Something went wrong. Please try again later');
-      return;
     });
   }
 }

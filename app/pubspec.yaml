@@ -42,6 +42,8 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   floating_snackbar: ^1.0.5
   get: ^4.6.6
+  web_socket_channel: ^3.0.1
+  image: ^4.2.0
 
 dev_dependencies:
   flutter_test:
