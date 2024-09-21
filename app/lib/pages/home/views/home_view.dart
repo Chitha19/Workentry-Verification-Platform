@@ -39,9 +39,7 @@ class HomeView extends GetView<HomeController> {
                     size: 32,
                   ),
                   title: 'Check In',
-                  onClick: () {
-                    Get.toNamed('/facescan');
-                  },
+                  onClick: controller.gotoFaceScan,
                 ),
                 const SizedBox(
                   height: 30,

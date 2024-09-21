@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:app/services/userinfo_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/request/request.dart';
@@ -51,11 +52,14 @@ class ApiService extends GetConnect {
   Future<Response> getCoperates() => get('/api/v1/corp');
 
   Future<IOWebSocketChannel> getFaceVerificationChannel() async {
-    final token = await ApiService.to.getToken();
+    final token = await getToken();
 
     final url = Uri.parse('ws://$_host/ws/v1/face-verification');
     final channel = IOWebSocketChannel.connect(url,
-        headers: {'Authorization': 'Bearer ${token!}'});
+        headers: {
+          'Authorization': 'Bearer ${token!}',
+          'X-Current-Location': '${UserInfoService.to.lat},${UserInfoService.to.long}'
+        });
 
     return channel;
   }
