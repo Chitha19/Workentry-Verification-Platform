@@ -1,14 +1,17 @@
-from fastapi import FastAPI, WebSocket, HTTPException, status, Depends, Form, UploadFile
+import asyncio
+from fastapi import FastAPI, WebSocket, HTTPException, status, Depends, Form, UploadFile, File
 from typing import Annotated
 from pydantic import EmailStr
 from db import get_corps, is_emp_exist, register, is_site_exist, get_emp, get_emp_by_email, is_emp_exist_by_email
 from authen import hashed_password, verify_password, create_access_token, validate_token, validate_token_for_ws
-from model import Corp, Employee, Login
+from model import Corp, Employee, Login, LoginResponse, EmployeeResponse, EmployeeWithLocation
+from PIL import Image
+from io import BytesIO
 
 app = FastAPI()
 
 @app.get(
-    "/api/v1/corp/",
+    "/api/v1/corp",
     response_description="List all corporates.",
     response_model=list[Corp],
     response_model_by_alias=False,
@@ -16,8 +19,17 @@ app = FastAPI()
 async def read_corps(emp: Annotated[Employee, Depends(validate_token)]):
     return get_corps()
 
+@app.get(
+    "/api/v1/emp",
+    response_description="Get user profile from token.",
+    response_model=EmployeeResponse,
+    response_model_by_alias=False,
+)
+async def read_corps(emp: Annotated[Employee, Depends(validate_token)]):
+    return emp
+
 @app.post(
-    "/api/v1/emp/",
+    "/api/v1/emp",
     response_description="Register new employee.",
     status_code=status.HTTP_201_CREATED,
     response_model_by_alias=False,
@@ -40,10 +52,10 @@ async def register_emp(emp: Employee):
     return { "message": "register success." }
 
 @app.post(
-    "/api/v2/emp/",
-    response_description="Register new employee.",
+    "/api/v2/emp",
+    response_description="Register new employee from-data.",
     status_code=status.HTTP_201_CREATED,
-    # response_model_by_alias=False,
+    response_model_by_alias=False,
 )
 async def register_emp_v2(
     emp: Annotated[Employee, Depends(validate_token)],
@@ -52,7 +64,13 @@ async def register_emp_v2(
     site_id: Annotated[str, Form()],
     img: UploadFile,
 ):
+    if not emp["isAdmin"]:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid permission.")
+    
     print(email, password, site_id, img.filename)
+    # contents = await img.read()
+    tmp = Image.open(img.file)
+    tmp.show()
 
     # if not is_site_exist(form.site_id):
     #     raise HTTPException(status_code=400, detail="SiteID is not exists")
@@ -72,50 +90,41 @@ async def register_emp_v2(
     return { "message": "register success." }
 
 @app.post(
-    "/api/v1/login/",
+    "/api/v1/login",
+    response_description="Login.",
     response_model_by_alias=False,
+    response_model=LoginResponse,
 )
 async def gentoken(login: Login):
     emp = get_emp(username=login.username)
     if emp is None:
         emp = get_emp_by_email(email=login.username)
         if emp is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="user is not exists.")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="user is not exists.")
 
     if not verify_password(login.password, emp["password"]):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid password.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid password.")
 
     access_token = create_access_token(data={"sub": emp["username"]})
-    return {"access_token": access_token, "token_type": "bearer"}
+    response = LoginResponse(access_token=access_token, token_type="Bearer")
+    return response
 
 @app.websocket("/ws/v1/face-verification")
-async def face_verification(*, websocket: WebSocket, emp: Annotated[str, Depends(validate_token_for_ws)]):
+async def face_verification(*, websocket: WebSocket, emp: Annotated[EmployeeWithLocation, Depends(validate_token_for_ws)]):
     await websocket.accept()
-    # 1. validate user
     # 2. get id card image
-    async for img_bytes in websocket.iter_text():
-        print(f"received: {img_bytes}")
+    asyncio.gather(test(websocket))
+    async for img_bytes in websocket.iter_bytes():
+        print(f"received")
+        img = Image.open(BytesIO(img_bytes))
+        img.show()
         # 3. verify incomming image with id card image
         # 4. send verify true if it is the same person
 
+async def test(websocket: WebSocket):
+    print('waiting')
+    await asyncio.sleep(2)
+    print('sending')
+    asyncio.gather(websocket.send_text('verified'))
+    # websocket.send_bytes(bytes(1))
 
-# @app.post(
-#     "/api/v1/emp/{id}",
-#     response_description="Get employee by ID.",
-#     response_model=Employee,
-#     response_model_by_alias=False,
-# )
-# async def read_emp(id: str, current_user: dict = Depends(get_current_user)):
-#     # Convert id to ObjectId
-#     user = users_collection.find_one({"_id": ObjectId(id)})
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-    
-#     # Prepare user data for response
-#     user_data = User(
-#         id=str(user["_id"]),
-#         username=user["username"],
-#         email=user["email"]
-#     )
-    
-#     return user_data

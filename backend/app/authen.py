@@ -49,7 +49,18 @@ async def validate_token(token: Annotated[str, Depends(oauth2_scheme)]):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="user is not exists.")
     return emp_by_email
 
-async def validate_token_for_ws(websocket: WebSocket, authorization: Annotated[Union[str, None], Header()] = None):
+async def validate_token_for_ws(
+    websocket: WebSocket, 
+    authorization: Annotated[Union[str, None], Header()] = None,
+    x_current_location: Annotated[Union[str, None], Header()] = None,
+):
+    #! validate location
+    if x_current_location is None or x_current_location == "":
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+    
+    location = x_current_location.split(",", 1)
+
+    #! validate token
     if authorization is None or authorization == "":
         raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
 
@@ -61,10 +72,12 @@ async def validate_token_for_ws(websocket: WebSocket, authorization: Annotated[U
             raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
     except InvalidTokenError:
         raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+    
     emp = get_emp(username)
     if emp is not None:
-        return emp
+        return { "employee": emp, "lat": float(location[0]), "long": float(location[1]) }
+    
     emp_by_email = get_emp_by_email(username)
     if emp_by_email is None:
         raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
-    return emp_by_email
+    return { "employee": emp_by_email, "lat": float(location[0]), "long": float(location[1]) }
