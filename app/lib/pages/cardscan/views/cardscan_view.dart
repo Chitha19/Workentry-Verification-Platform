@@ -51,8 +51,8 @@ class _CardScope extends CustomPainter {
 
     Rect innerRect = Rect.fromCenter(
         center: Offset(size.width * 0.5, size.height * 0.5),
-        width: size.width * 0.65,
-        height: size.height * 0.65);
+        width: size.width * 0.50,
+        height: size.height * 0.60);
     RRect innerRRect =
         RRect.fromRectAndRadius(innerRect, const Radius.circular(18));
 

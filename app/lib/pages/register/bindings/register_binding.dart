@@ -1,3 +1,4 @@
+import 'package:app/pages/cardscan/controllers/cardscan_controller.dart';
 import 'package:app/pages/register/controllers/register_controller.dart';
 import 'package:app/services/api_service.dart';
 import 'package:app/services/auth_service.dart';
@@ -10,5 +11,6 @@ class RegisterBinding extends Bindings {
     Get.lazyPut<ApiService>(() => ApiService());
     Get.lazyPut<AuthService>(() => AuthService());
     Get.lazyPut<RegisterController>(() => RegisterController());
+    Get.lazyPut<CardscanController>(() => CardscanController());
   }
 }

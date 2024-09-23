@@ -1,8 +1,5 @@
-// import 'dart:ui';
-import 'dart:typed_data';
-import 'dart:ui';
 
-import 'package:flutter/painting.dart';
+import 'package:app/pages/register/controllers/register_controller.dart';
 import 'package:app/pages/error/views/error_view.dart';
 import 'package:camera/camera.dart';
 import 'package:get/get.dart';
@@ -11,24 +8,24 @@ import 'package:image/image.dart' as imglib;
 class CardscanController extends GetxController with StateMixin {
   late CameraController cameraController;
   late Future<void> _initializeControllerFuture;
-  late imglib.Image idCard;
   final _isCameraEmpty = true.obs;
-  static const imageWidth = 440;
-  static const imageHeight = 540;
+  static const imageWidth = 240;
+  static const imageHeight = 360;
 
   @override
-  void onInit() {
-    print("========= FacescanController on init");
+  void onInit() async {
+    print("========= CardscanController on init");
     change(null, status: RxStatus.loading());
-    _initialCamera();
+    await _initialCamera();
     super.onInit();
   }
 
   @override
   void onReady() async {
+    print("========= CardscanController on ready");
     if (_isCameraEmpty()) return;
     await _initializeControllerFuture;
-
+    print("========= CardscanController finished initial camera");
     change(null, status: RxStatus.success());
 
     super.onReady();
@@ -43,11 +40,11 @@ class CardscanController extends GetxController with StateMixin {
     super.onClose();
   }
 
-  void _initialCamera() async {
+  Future<void> _initialCamera() async {
     final cameras = await availableCameras();
     if (cameras.isEmpty) {
       Get.off(const ErrorView(
-        title: 'Face Scan',
+        title: 'ID Card',
         message: 'No camera available.',
       ));
       return;
@@ -65,29 +62,20 @@ class CardscanController extends GetxController with StateMixin {
         );
 
     _initializeControllerFuture = cameraController.initialize();
+
+    update();
   }
 
   Future<void> takePicture() async {
     if (_isCameraEmpty()) return;
     await _initializeControllerFuture;
 
-    final raw = await cameraController.takePicture();
-    final imgBytes = await raw.readAsBytes();
-    final imgInfo = await decodeImageFromList(imgBytes);
-    final img = _convertBGRA8888ToImage(imgInfo, imgBytes);
-    final cropedImg = _cropImage(img);
-    
-    idCard = cropedImg;
-    update();
-  }
+    final file = await cameraController.takePicture();
+    final img = imglib.decodeJpg(await file.readAsBytes());
+    final cropedImg = _cropImage(img!);
 
-  imglib.Image _convertBGRA8888ToImage(Image image, Uint8List imageBytes) {
-    return imglib.Image.fromBytes(
-      width: image.width,
-      height: image.height,
-      bytes: imageBytes.buffer,
-      order: imglib.ChannelOrder.bgra,
-    );
+    RegisterController.to.idCard(cropedImg);
+    Get.back();
   }
 
   imglib.Image _cropImage(imglib.Image image) {

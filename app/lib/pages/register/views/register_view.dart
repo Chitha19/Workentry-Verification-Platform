@@ -1,4 +1,5 @@
 import 'package:app/pages/register/controllers/register_controller.dart';
+import 'package:app/pages/register/views/id_card.dart';
 import 'package:app/pages/register/views/select_corp.dart';
 import 'package:app/pages/register/views/select_site.dart';
 import 'package:app/widgets/input_part_layout.dart';
@@ -62,11 +63,15 @@ class RegisterView extends GetView<RegisterController> {
                   title: 'Coperate',
                   children: [SelectCorp(), SelectSite()],
                 ),
+                const IdCard(),
                 const SizedBox(height: 22),
-                const RegisterButtonLayout(
-                  // TODO: add prev page
-                  onNext: null,
-                )
+                Obx(() => RegisterButtonLayout(
+                      onPrev: () => Get.back(),
+                      nextTitle: 'Submit',
+                      onNext: !(controller.valid())
+                          ? null
+                          : controller.registerEmployee,
+                    ))
               ]),
               onLoading: const CupertinoActivityIndicator(),
               onError: (message) => Center(

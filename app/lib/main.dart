@@ -1,4 +1,5 @@
-
+import 'package:app/pages/cardscan/bindings/cardscan_binding.dart';
+import 'package:app/pages/cardscan/views/cardscan_view.dart';
 import 'package:app/pages/facescan/bindings/facescan_binding.dart';
 import 'package:app/pages/facescan/views/facescan_view.dart';
 import 'package:app/pages/home/bindings/home_binding.dart';
@@ -42,7 +43,13 @@ void main() {
       GetPage(
           name: '/register',
           page: () => const RegisterView(),
-          binding: RegisterBinding())
+          binding: RegisterBinding(),
+          children: [
+            GetPage(
+                name: '/cardscan',
+                page: () => const CardscanView(),
+                binding: CardscanBinding())
+          ])
     ],
   ));
 

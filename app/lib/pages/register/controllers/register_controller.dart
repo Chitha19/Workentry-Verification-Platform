@@ -5,18 +5,23 @@ import 'package:app/models/coperate.dart';
 import 'package:app/services/api_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:image/image.dart' as imglib;
 
 class RegisterController extends GetxController
     with StateMixin<List<Coperate>> {
+  static RegisterController get to => Get.find<RegisterController>();
+
   final emailController = TextEditingController().obs;
   final passwordController = TextEditingController().obs;
   final _emailValid = false.obs;
   final _passwordValid = false.obs;
-  RxBool get valid => (_emailValid() && _passwordValid()).obs;
+  RxBool get valid =>
+      (_emailValid() && _passwordValid() && idCard().isValid).obs;
 
   final corps = <Coperate>[].obs;
   final selectedCorp = const Coperate().obs;
   final selectedSite = const Site().obs;
+  final idCard = imglib.Image.empty().obs;
 
   @override
   void onInit() {
@@ -24,9 +29,10 @@ class RegisterController extends GetxController
     change(null, status: RxStatus.loading());
 
     loadCoperate();
-    passwordController(TextEditingController(text: RandomPassword().password));
 
     emailController().addListener(() {
+      print(
+          '========= email=${emailController().text}, img=${idCard().isValid}');
       if (emailController().text.characters.isEmpty) {
         _emailValid(false);
       } else {
@@ -35,12 +41,17 @@ class RegisterController extends GetxController
     });
 
     passwordController().addListener(() {
+      print(
+          '========= password=${passwordController().text}, img=${idCard().isValid}');
       if (passwordController().text.characters.isEmpty) {
         _passwordValid(false);
       } else {
         _passwordValid(true);
       }
     });
+
+    // passwordController(TextEditingController(text: RandomPassword().password));
+    passwordController().text = RandomPassword().password;
   }
 
   @override
@@ -81,5 +92,22 @@ class RegisterController extends GetxController
     selectedSite(site);
   }
 
-  void gotoCardCapture() {}
+  void gotoCardCapture() {
+    Get.toNamed('/register/cardscan');
+  }
+
+  void registerEmployee() async {
+    try {
+      final response = await ApiService.to.registerEmployee(
+          emailController().text,
+          passwordController().text,
+          selectedSite().id,
+          idCard());
+      if (response.status.isOk) {
+
+      }
+    } catch (e) {
+      
+    }
+  }
 }
