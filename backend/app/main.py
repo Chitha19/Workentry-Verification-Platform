@@ -1,12 +1,13 @@
 import asyncio
-from fastapi import FastAPI, WebSocket, HTTPException, status, Depends, Form, UploadFile, File
+from fastapi import FastAPI, WebSocket, HTTPException, status, Depends, Form, UploadFile
 from typing import Annotated
 from pydantic import EmailStr
-from db import get_corps, is_emp_exist, register, is_site_exist, get_emp, get_emp_by_email, is_emp_exist_by_email
+from db import get_corps, register, is_site_exist, get_emp, get_emp_by_email, is_emp_exist_by_email
 from authen import hashed_password, verify_password, create_access_token, validate_token, validate_token_for_ws
 from model import Corp, Employee, Login, LoginResponse, EmployeeResponse, EmployeeWithLocation
-from PIL import Image
-from io import BytesIO
+from ml import verifying, get_emp_data_from_ocr
+# from PIL import Image
+# from io import BytesIO
 
 app = FastAPI()
 
@@ -34,60 +35,58 @@ async def read_corps(emp: Annotated[Employee, Depends(validate_token)]):
     status_code=status.HTTP_201_CREATED,
     response_model_by_alias=False,
 )
-async def register_emp(emp: Employee):
+async def register_emp(admin_data: Annotated[Employee, Depends(validate_token)], emp: Employee):
+    if not admin_data["isAdmin"]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid permission.")
+    
     if not is_site_exist(emp.site_id):
-        raise HTTPException(status_code=400, detail="SiteID is not exists")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="SiteID is not exists")
 
-    if is_emp_exist(emp.username):
-        raise HTTPException(status_code=400, detail="Username already exists")
+    if is_emp_exist_by_email(emp.email):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists")
     
     emp.password = hashed_password(emp.password)
     emp = emp.model_dump(by_alias=True, exclude=["id"])
 
     try:
         register(emp)
+        return { "message": "register success." }
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error registering employee: {str(e)}")
 
-    return { "message": "register success." }
-
 @app.post(
     "/api/v2/emp",
-    response_description="Register new employee from-data.",
-    status_code=status.HTTP_201_CREATED,
+    response_description="Extract employee data from id card image from-data.",
+    response_model=Employee,
+    status_code=status.HTTP_200_OK,
     response_model_by_alias=False,
 )
 async def register_emp_v2(
-    emp: Annotated[Employee, Depends(validate_token)],
+    admin_data: Annotated[Employee, Depends(validate_token)],
     email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
     site_id: Annotated[str, Form()],
     img: UploadFile,
 ):
-    if not emp["isAdmin"]:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid permission.")
+    if not admin_data["isAdmin"]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid permission.")
     
-    print(email, password, site_id, img.filename)
-    # contents = await img.read()
-    tmp = Image.open(img.file)
-    tmp.show()
+    if not is_site_exist(site_id):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="SiteID is not exists")
 
-    # if not is_site_exist(form.site_id):
-    #     raise HTTPException(status_code=400, detail="SiteID is not exists")
+    if is_emp_exist_by_email(email):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists")
 
-    # if is_emp_exist_by_email(form.email):
-    #     raise HTTPException(status_code=400, detail="Email already exists")
-    
-    
-    # emp.password = hashed_password(emp.password)
-    # emp = emp.model_dump(by_alias=True, exclude=["id"])
-
-    # try:
-    #     register(emp)
-    # except Exception as e:
-    #     raise HTTPException(status_code=400, detail=f"Error registering employee: {str(e)}")
-
-    return { "message": "register success." }
+    try:
+        emp_data = await get_emp_data_from_ocr(
+            email=email, 
+            password=password,
+            site_id=site_id,
+            img=img
+        )
+        return emp_data
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error Get OCR Data Error: {str(e)}")
 
 @app.post(
     "/api/v1/login",
@@ -112,19 +111,6 @@ async def gentoken(login: Login):
 @app.websocket("/ws/v1/face-verification")
 async def face_verification(*, websocket: WebSocket, emp: Annotated[EmployeeWithLocation, Depends(validate_token_for_ws)]):
     await websocket.accept()
-    # 2. get id card image
-    asyncio.gather(test(websocket))
     async for img_bytes in websocket.iter_bytes():
-        print(f"received")
-        img = Image.open(BytesIO(img_bytes))
-        img.show()
-        # 3. verify incomming image with id card image
-        # 4. send verify true if it is the same person
-
-async def test(websocket: WebSocket):
-    print('waiting')
-    await asyncio.sleep(2)
-    print('sending')
-    asyncio.gather(websocket.send_text('verified'))
-    # websocket.send_bytes(bytes(1))
+        asyncio.gather(verifying(websocket=websocket, emp=emp, face_img=img_bytes))
 

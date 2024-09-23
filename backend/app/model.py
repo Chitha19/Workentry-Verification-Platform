@@ -1,5 +1,6 @@
 from pydantic import BaseModel, BeforeValidator, Field, EmailStr, SecretStr
 from typing import Annotated, Optional
+from datetime import datetime
 
 
 class Site(BaseModel):
@@ -37,6 +38,7 @@ class LoginResponse(BaseModel):
 
 class EmployeeResponse(BaseModel):
     id: Optional[Annotated[str, BeforeValidator(str)]] = Field(alias="_id", default=None)
+    fname_en: str
     username: str
     isAdmin: bool
 
@@ -44,3 +46,18 @@ class EmployeeWithLocation(BaseModel):
     employee: Employee
     lat: float
     long: float
+
+class OCRData(BaseModel):
+    emp_corp_id: str
+    fname_th: str
+    lname_th: str
+    fname_en: str
+    lname_en: str
+
+# check_in
+class CheckInLog(BaseModel):
+    id: Optional[Annotated[str, BeforeValidator(str)]] = Field(alias="_id", default=None)
+    timestamp: datetime
+    emp_id: str
+    current_lat: float
+    current_long: float

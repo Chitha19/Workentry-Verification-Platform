@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from model import Employee
+from model import Employee, CheckInLog
 
 client = MongoClient("mongodb://faceverify:faceverify1234@localhost:27017/")
 db = client["face_verification"]
@@ -34,3 +34,6 @@ def is_site_exist(id: str):
 
 def register(emp: Employee):
     return db.employee.insert_one(emp)
+
+def write_check_in_log(log: CheckInLog):
+    return db.check_in.insert_one(log)
