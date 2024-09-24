@@ -1,4 +1,5 @@
 import asyncio
+import uvicorn
 from fastapi import FastAPI, WebSocket, HTTPException, status, Depends, Form, UploadFile
 from typing import Annotated
 from pydantic import EmailStr
@@ -9,7 +10,10 @@ from ml import verifying, get_emp_data_from_ocr
 # from PIL import Image
 # from io import BytesIO
 
-app = FastAPI()
+SSL_KEY_FILE = "cert/key.pem"
+SSL_CERT_FILE = "cert/cert.pem"
+
+app = FastAPI(ssl_keyfile=SSL_KEY_FILE, ssl_certfile=SSL_CERT_FILE)
 
 @app.get(
     "/api/v1/corp",
@@ -75,7 +79,7 @@ async def register_emp_v2(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="SiteID is not exists")
 
     if is_emp_exist_by_email(email):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
 
     try:
         emp_data = await get_emp_data_from_ocr(
@@ -86,7 +90,7 @@ async def register_emp_v2(
         )
         return emp_data
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error Get OCR Data Error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Get OCR Data Error: {str(e)}")
 
 @app.post(
     "/api/v1/login",
@@ -114,3 +118,11 @@ async def face_verification(*, websocket: WebSocket, emp: Annotated[EmployeeWith
     async for img_bytes in websocket.iter_bytes():
         asyncio.gather(verifying(websocket=websocket, emp=emp, face_img=img_bytes))
 
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app", 
+        host="0.0.0.0", 
+        port=8080, 
+        ssl_keyfile=SSL_KEY_FILE, 
+        ssl_certfile=SSL_CERT_FILE
+    )

@@ -1,4 +1,5 @@
 fastapi==0.111.1
+uvicorn[standard]
 websockets==12.0
 numpy==2.0.0
 pymongo==4.8.0

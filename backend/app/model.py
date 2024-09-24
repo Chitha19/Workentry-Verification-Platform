@@ -24,9 +24,10 @@ class Employee(BaseModel):
     lname_th: str
     fname_en: str
     lname_en: str
-    img: Optional[str] = Field(default="/")
+    img: str = Field(default="/")
     email: EmailStr
-    password: SecretStr
+    password: str
+    # password: SecretStr
     isAdmin: bool
 
 class Login(BaseModel):

@@ -47,7 +47,7 @@ async def verifying(websocket: WebSocket, emp: EmployeeWithLocation, face_img: b
         write_check_in_log(log)
     
 async def get_emp_data_from_ocr(email: str, password: str, site_id: str, img: UploadFile) -> Employee:
-    path = await store_card_img(img=img) #! store card image
+    img_path = await store_card_img(img=img) #! store card image
     data = await ocr(img)
     new_emp = Employee(
         site_id=site_id,
@@ -60,10 +60,9 @@ async def get_emp_data_from_ocr(email: str, password: str, site_id: str, img: Up
         lname_th=data.lname_th,
         fname_en=data.fname_en,
         lname_en=data.lname_en,
-        img=path
+        img=img_path
     )
     return new_emp
 
-async def store_card_img(img: UploadFile):
-    path = '/path/to/card_img/img.jpg'
-    return path
+async def store_card_img(img: UploadFile) -> str:
+    return '/path/to/card_img/img.jpg'
