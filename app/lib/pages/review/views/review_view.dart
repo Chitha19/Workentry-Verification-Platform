@@ -268,6 +268,12 @@ class _ShowSuccessState extends State<_ShowSuccess>
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Center(
         child: ScaleTransition(
