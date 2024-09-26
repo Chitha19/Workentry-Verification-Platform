@@ -7,6 +7,8 @@ import 'package:app/pages/login/bindings/login_binding.dart';
 import 'package:app/pages/login/views/login_view.dart';
 import 'package:app/pages/register/bindings/register_binding.dart';
 import 'package:app/pages/register/views/register_view.dart';
+import 'package:app/pages/review/bindings/review_binding.dart';
+import 'package:app/pages/review/views/review_view.dart';
 import 'package:app/services/api_service.dart';
 import 'package:app/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -48,7 +50,11 @@ void main() {
             GetPage(
                 name: '/cardscan',
                 page: () => const CardscanView(),
-                binding: CardscanBinding())
+                binding: CardscanBinding()),
+            GetPage(
+                name: '/review',
+                page: () => const ReviewView(),
+                binding: ReviewBinding())
           ])
     ],
   ));

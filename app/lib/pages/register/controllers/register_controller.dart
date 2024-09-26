@@ -96,18 +96,7 @@ class RegisterController extends GetxController
     Get.toNamed('/register/cardscan');
   }
 
-  void registerEmployee() async {
-    try {
-      final response = await ApiService.to.registerEmployee(
-          emailController().text,
-          passwordController().text,
-          selectedSite().id,
-          idCard());
-      if (response.status.isOk) {
-
-      }
-    } catch (e) {
-      
-    }
+  void registerEmployee() {
+    Get.toNamed('/register/review');
   }
 }

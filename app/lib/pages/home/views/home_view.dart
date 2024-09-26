@@ -18,20 +18,15 @@ class HomeView extends GetView<HomeController> {
             child: controller.obx(
               (user) => ListView(children: [
                 const SizedBox(
-                  height: 30,
+                  height: 42,
                 ),
-                const Text('Hello',
-                    style: TextStyle(
-                        fontFamily: "Netflix",
-                        fontWeight: FontWeight.bold,
-                        fontSize: 32.0)),
-                Text((user == null || user.name == '') ? 'Workers' : user.name,
+                Text('Hello ${(user?.name) ?? 'Workers'}',
                     style: const TextStyle(
                         fontFamily: "Netflix",
                         fontWeight: FontWeight.bold,
                         fontSize: 32.0)),
                 const SizedBox(
-                  height: 30,
+                  height: 42,
                 ),
                 _Menu(
                   icon: const Icon(
@@ -44,19 +39,25 @@ class HomeView extends GetView<HomeController> {
                 const SizedBox(
                   height: 30,
                 ),
-                _Menu(
-                  icon: const Icon(
-                    CupertinoIcons.person_add_solid,
-                    size: 32,
-                  ),
-                  title: 'Register',
-                  onClick: () {
-                    Get.toNamed('/register');
-                  },
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
+                Visibility(
+                    visible: user?.isAdmin ?? false,
+                    child: Column(
+                      children: [
+                        _Menu(
+                          icon: const Icon(
+                            CupertinoIcons.person_add_solid,
+                            size: 32,
+                          ),
+                          title: 'Register',
+                          onClick: () {
+                            Get.toNamed('/register');
+                          },
+                        ),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                      ],
+                    )),
                 _Menu(
                   icon: const Icon(
                     CupertinoIcons.chart_bar_square_fill,
@@ -68,7 +69,7 @@ class HomeView extends GetView<HomeController> {
                   },
                 )
               ]),
-              onLoading: const CupertinoActivityIndicator(),
+              onLoading: const Center(child: CupertinoActivityIndicator()),
               onError: (message) => Center(
                   child: Text(message!,
                       textAlign: TextAlign.center,

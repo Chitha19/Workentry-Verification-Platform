@@ -67,13 +67,13 @@ class RegisterView extends GetView<RegisterController> {
                 const SizedBox(height: 22),
                 Obx(() => RegisterButtonLayout(
                       onPrev: () => Get.back(),
-                      nextTitle: 'Submit',
+                      nextTitle: 'Review',
                       onNext: !(controller.valid())
                           ? null
                           : controller.registerEmployee,
                     ))
               ]),
-              onLoading: const CupertinoActivityIndicator(),
+              onLoading: const Center(child: CupertinoActivityIndicator()),
               onError: (message) => Center(
                   child: Text(message!,
                       textAlign: TextAlign.center,

@@ -4,6 +4,7 @@ import 'dart:convert';
 // import 'package:get/get_connect/connect.dart';
 // import 'package:http/http.dart' as http;
 
+import 'package:app/models/employee.dart';
 import 'package:app/services/userinfo_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -55,7 +56,10 @@ class ApiService extends GetConnect {
 
   Future<Response> getCoperates() => get('/api/v1/corp');
 
-  Future<Response> registerEmployee(
+  Future<Response> confirmRegisterEmployee(Employee emp) =>
+      post('/api/v1/emp', emp.toJson());
+
+  Future<Response> getOCR(
       String email, String password, String siteID, imglib.Image image) {
     final imgBytes = imglib.encodeJpg(image);
     final form = FormData({
