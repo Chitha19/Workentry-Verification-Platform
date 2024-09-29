@@ -6,4 +6,6 @@ pymongo==4.8.0
 pyjwt==2.9.0
 passlib[bcrypt]
 python-multipart==0.0.9
+easyocr
+deepface
 # Pillow

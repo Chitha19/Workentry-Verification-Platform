@@ -7,7 +7,8 @@ from db import get_corps, register, is_site_exist, get_emp, get_emp_by_email, is
 from authen import hashed_password, verify_password, create_access_token, validate_token, validate_token_for_ws
 from model import Corp, Employee, Login, LoginResponse, EmployeeResponse, EmployeeWithLocation
 from ml import verifying, get_emp_data_from_ocr
-# from PIL import Image
+from PIL import Image
+from deepface import DeepFace
 # from io import BytesIO
 
 SSL_KEY_FILE = "cert/key.pem"

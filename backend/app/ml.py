@@ -5,16 +5,20 @@ from datetime import datetime
 import asyncio
 import time
 from random import randint
+from deepface import DeepFace
+from PIL import Image
+import easyocr
 
 async def ocr(card: UploadFile):
     try:
-        time.sleep(4)
+        reader = easyocr.Reader(['en','th'],gpu=True)
+        img = reader.readtext(await card.read(), detail = 0)
         return OCRData(
-            emp_corp_id="12334", 
-            fname_th="fNameTH", 
-            lname_th="lNameTH",
-            fname_en="fNameEN",
-            lname_en="lNameEN"
+            emp_corp_id=img[4], 
+            fname_th=img[1], 
+            lname_th=img[2],
+            fname_en=img[3].split(' ')[0],
+            lname_en=img[3].split(' ')[1]
         )
     except Exception as e:
         raise HTTPException(
