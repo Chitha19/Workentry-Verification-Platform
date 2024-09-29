@@ -8,6 +8,6 @@ docker run -it --rm -p 8080:8080 --name backend backend-img:0.0.1
 
 # Set venv
 ```bash
-python -m venv /Users/ukekeilele/Desktop/Coding/Python/venv
-source /Users/ukekeilele/Desktop/Coding/Python/venv/bin/activate
+python -m venv <path to create venv folder>
+source <path of venv folder>/bin/activate
 ```

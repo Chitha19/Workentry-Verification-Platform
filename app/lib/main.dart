@@ -1,3 +1,6 @@
+
+import 'dart:io';
+
 import 'package:app/pages/cardscan/bindings/cardscan_binding.dart';
 import 'package:app/pages/cardscan/views/cardscan_view.dart';
 import 'package:app/pages/facescan/bindings/facescan_binding.dart';
@@ -15,15 +18,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:app/pages/home/views/home_view.dart';
 
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) =>
+              true; // add your localhost detection logic here if you want
+  }
+}
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = MyHttpOverrides();
 
   runApp(GetCupertinoApp(
     theme: const CupertinoThemeData(brightness: Brightness.light),
     initialRoute: '/',
     initialBinding: BindingsBuilder(() {
+      Get.put<ApiService>(ApiService());
       Get.lazyPut<AuthService>(() => AuthService(), fenix: true);
-      Get.lazyPut<ApiService>(() => ApiService(), fenix: true);
       // Get.lazyPut<HomeController>(() => HomeController(), fenix: true);
       // Get.lazyPut<RegisterController>(() => RegisterController(), fenix: true);
     }),

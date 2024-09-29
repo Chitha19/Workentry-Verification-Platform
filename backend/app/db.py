@@ -1,8 +1,10 @@
+from datetime import datetime
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from model import Employee, CheckInLog
+from model import Employee, EmployeeWithLocation
 
-client = MongoClient("mongodb://faceverify:faceverify1234@localhost:27017/")
+# client = MongoClient("mongodb://faceverify:faceverify1234@13.229.247.14:27017/")
+client = MongoClient("mongodb://faceverify:faceverify1234@db:27017/")
 db = client["face_verification"]
 
 def get_corps():
@@ -35,5 +37,12 @@ def is_site_exist(id: str):
 def register(emp: Employee):
     return db.employee.insert_one(emp)
 
-def write_check_in_log(log: CheckInLog):
+def write_check_in_log(emp: EmployeeWithLocation):
+    log = {
+        "timestamp": datetime.now(),
+        "emp_id": emp.employee.id,
+        "current_lat": emp.lat,
+        "current_long": emp.long
+    }
+    print(f'{emp.employee.username} log is {log}')
     return db.check_in.insert_one(log)

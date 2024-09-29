@@ -58,16 +58,16 @@ class HomeView extends GetView<HomeController> {
                         ),
                       ],
                     )),
-                _Menu(
-                  icon: const Icon(
-                    CupertinoIcons.chart_bar_square_fill,
-                    size: 32,
-                  ),
-                  title: 'Dashboard',
-                  onClick: () {
-                    print('Go to Dashboard');
-                  },
-                )
+                // _Menu(
+                //   icon: const Icon(
+                //     CupertinoIcons.chart_bar_square_fill,
+                //     size: 32,
+                //   ),
+                //   title: 'Dashboard',
+                //   onClick: () {
+                //     print('Go to Dashboard');
+                //   },
+                // )
               ]),
               onLoading: const Center(child: CupertinoActivityIndicator()),
               onError: (message) => Center(

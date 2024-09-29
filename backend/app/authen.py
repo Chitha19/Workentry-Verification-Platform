@@ -6,6 +6,7 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from db import get_emp, get_emp_by_email
+from model import EmployeeWithLocation
 
 SECRET_KEY = "7a28547b0585580e129d01c1f2b4633b6dc3e248f71530ea35c8765571e4c730"
 ALGORITHM = "HS256"
@@ -75,9 +76,9 @@ async def validate_token_for_ws(
     
     emp = get_emp(username)
     if emp is not None:
-        return { "employee": emp, "lat": float(location[0]), "long": float(location[1]) }
+        return EmployeeWithLocation(employee=emp, lat=float(location[0]), long=float(location[1]))
     
     emp_by_email = get_emp_by_email(username)
     if emp_by_email is None:
         raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
-    return { "employee": emp_by_email, "lat": float(location[0]), "long": float(location[1]) }
+    return EmployeeWithLocation(employee=emp_by_email, lat=float(location[0]), long=float(location[1]))

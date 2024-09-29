@@ -58,7 +58,7 @@ class OCRData(BaseModel):
 # check_in
 class CheckInLog(BaseModel):
     id: Optional[Annotated[str, BeforeValidator(str)]] = Field(alias="_id", default=None)
-    timestamp: datetime
+    timestamp: Optional[datetime] = Field(default=datetime.now())
     emp_id: str
     current_lat: float
     current_long: float
