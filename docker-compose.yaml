@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  backend-api:
+    container_name: backend-api
+    build: ./backend
+    ports:
+      - 8080:8080
+    networks:
+      - network-db
+  mongo-db:
+    container_name: mongo-db
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=faceverify
+      - MONGO_INITDB_ROOT_PASSWORD=faceverify1234
+    ports:
+      - 27017:27017
+    volumes:
+      - /Users/ukekeilele/Desktop/Coding/flutter/Workentry-Verification-Platform/database/db:/data/db
+    networks:
+      - network-db
+
+networks:
+  network-db:
+    name: network-db
+    driver: bridge

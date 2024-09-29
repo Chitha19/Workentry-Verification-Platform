@@ -2,7 +2,8 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from model import Employee, CheckInLog
 
-client = MongoClient("mongodb://faceverify:faceverify1234@localhost:27017/")
+# client = MongoClient("mongodb://faceverify:faceverify1234@13.229.247.14:27017/")
+client = MongoClient("mongodb://faceverify:faceverify1234@mongo-db:27017/")
 db = client["face_verification"]
 
 def get_corps():

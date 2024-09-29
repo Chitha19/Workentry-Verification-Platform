@@ -12,7 +12,7 @@ import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 
 class HomeController extends GetxController with StateMixin<User> {
-  // AuthService get authService => AuthService.to;
+  // ApiService get apiService => ApiService.to;
 
   // final _storage = const FlutterSecureStorage();
   // late Position _currentPosition;
@@ -39,7 +39,7 @@ class HomeController extends GetxController with StateMixin<User> {
         return;
       }
 
-      print('========= HomeController get user error');
+      print('========= HomeController get user error: ${response.statusCode}');
       change(null,
           status:
               RxStatus.error('Something went wrong,\nPlease try again later.'));

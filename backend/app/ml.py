@@ -23,28 +23,33 @@ async def ocr(card: UploadFile):
         )
     
 async def face_verify(face_img: bytes, card_img: bytes) -> bool:
-    try:
-        number = randint(1, 100)
-        time.sleep(3)
-        if (number > 80):
-            return True
-        else:
-            return False
-    except Exception as e:
-        print(f"Face Verifying Error, ${e}")
-        raise WebSocketException(code=status.WS_1011_INTERNAL_ERROR)
+    number = randint(1, 100)
+    await asyncio.sleep(1)
+    if (number > 80):
+        return True
+    else:
+        return False
     
 async def verifying(websocket: WebSocket, emp: EmployeeWithLocation, face_img: bytes):
     card_img: bytes = bytes() #! load card image
-    if await face_verify(face_img=face_img, card_img=card_img):
-        asyncio.gather(websocket.send_bytes(1))
-        log = CheckInLog(
-            timestamp=datetime.now(),
-            emp_id=emp.employee.id,
-            current_lat=emp.lat,
-            current_long=emp.long
-        )
-        write_check_in_log(log)
+
+    try:
+        output = await face_verify(face_img=face_img, card_img=card_img)
+        print(f'verify {output}')
+        if output:
+            if websocket.client_state != 2:
+                print(f'send verified to client')
+                asyncio.gather(websocket.send_text('valid'))
+                
+            # log = CheckInLog(
+            #     timestamp=datetime.now(),
+            #     emp_id=emp.employee.id,
+            #     current_lat=emp.lat,
+            #     current_long=emp.long
+            # )
+            # write_check_in_log(log)
+    except asyncio.CancelledError:
+        print('task was cancelled')
     
 async def get_emp_data_from_ocr(email: str, password: str, site_id: str, img: UploadFile) -> Employee:
     img_path = await store_card_img(img=img) #! store card image

@@ -125,6 +125,7 @@ class FacescanController extends GetxController
 
   void _invalidVerified() async {
     // await _closeAll();
+    _streamDisconnect();
     Get.off(const ErrorView(
       title: 'Face Scan',
       message: 'Invalid face scanning.',
@@ -145,6 +146,7 @@ class FacescanController extends GetxController
   void _streamDisconnect() {
     _streamController.cancel();
     _channel.sink.close();
+    print("========= FacescanController websocket closed.");
   }
 
   imglib.Image _convertBGRA8888ToImage(CameraImage cameraImage) {

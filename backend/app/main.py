@@ -1,12 +1,12 @@
 import asyncio
 import uvicorn
-from fastapi import FastAPI, WebSocket, HTTPException, status, Depends, Form, UploadFile
+from fastapi import FastAPI, WebSocket, HTTPException, status, Depends, Form, UploadFile, WebSocketDisconnect
 from typing import Annotated
 from pydantic import EmailStr
 from db import get_corps, register, is_site_exist, get_emp, get_emp_by_email, is_emp_exist_by_email
 from authen import hashed_password, verify_password, create_access_token, validate_token, validate_token_for_ws
 from model import Corp, Employee, Login, LoginResponse, EmployeeResponse, EmployeeWithLocation
-from ml import verifying, get_emp_data_from_ocr
+from ml import get_emp_data_from_ocr, face_verify
 # from PIL import Image
 # from io import BytesIO
 
@@ -113,10 +113,33 @@ async def gentoken(login: Login):
     return response
 
 @app.websocket("/ws/v1/face-verification")
-async def face_verification(*, websocket: WebSocket, emp: Annotated[EmployeeWithLocation, Depends(validate_token_for_ws)]):
+async def face_verification(websocket: WebSocket, emp: Annotated[EmployeeWithLocation, Depends(validate_token_for_ws)]):
     await websocket.accept()
-    async for img_bytes in websocket.iter_bytes():
-        asyncio.gather(verifying(websocket=websocket, emp=emp, face_img=img_bytes))
+    print(f"{emp.employee.username} connected")
+    active_tasks = set()
+    try:
+        while True:
+            img_bytes = await websocket.receive_bytes()
+            task = asyncio.create_task(process_incoming_data(websocket=websocket, emp=emp, face_img=img_bytes))
+            active_tasks.add(task)
+            task.add_done_callback(lambda t: active_tasks.discard(t))
+    except WebSocketDisconnect:
+        print(f"{emp.employee.username} disconnected")
+    finally:
+        for task in active_tasks:
+            task.cancel()
+        await asyncio.gather(*active_tasks, return_exceptions=True)
+        print(f"{emp.employee.username} all tasks cancelled")
+
+async def process_incoming_data(websocket: WebSocket, emp: EmployeeWithLocation, face_img: bytes):
+    try:
+        output = await face_verify(face_img=face_img, card_img=bytes())
+        print(f"{emp.employee.username} verified {output}")
+        if output:
+            print(f"{emp.employee.username} send signal to client")
+            asyncio.gather(websocket.send_text('valid'))
+    except asyncio.CancelledError:
+        print(f"{emp.employee.username} task was cancelled")
 
 if __name__ == "__main__":
     uvicorn.run(

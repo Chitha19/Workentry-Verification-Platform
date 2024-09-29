@@ -25,7 +25,7 @@ class ReviewView extends GetView<ReviewController> {
           barrierDismissible: false,
           builder: (_) => const _ShowSuccess(),
         );
-        Future.delayed(const Duration(seconds: 3), () {
+        Future.delayed(const Duration(seconds: 2), () {
           Get.offAllNamed('/');
         });
         return;
