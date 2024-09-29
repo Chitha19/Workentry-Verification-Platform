@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import FastAPI, WebSocket, HTTPException, status, Depends, Form, UploadFile, WebSocketDisconnect
 from typing import Annotated
 from pydantic import EmailStr
-from db import get_corps, register, is_site_exist, get_emp, get_emp_by_email, is_emp_exist_by_email
+from db import get_corps, register, is_site_exist, get_emp, get_emp_by_email, is_emp_exist_by_email, write_check_in_log
 from authen import hashed_password, verify_password, create_access_token, validate_token, validate_token_for_ws
 from model import Corp, Employee, Login, LoginResponse, EmployeeResponse, EmployeeWithLocation
 from ml import get_emp_data_from_ocr, face_verify
@@ -136,7 +136,8 @@ async def process_incoming_data(websocket: WebSocket, emp: EmployeeWithLocation,
         output = await face_verify(face_img=face_img, card_img=bytes())
         print(f"{emp.employee.username} verified {output}")
         if output:
-            print(f"{emp.employee.username} send signal to client")
+            inserted = write_check_in_log(emp)
+            print(f"{emp.employee.username} send signal to client and inserted {inserted.acknowledged}")
             asyncio.gather(websocket.send_text('valid'))
     except asyncio.CancelledError:
         print(f"{emp.employee.username} task was cancelled")
@@ -144,7 +145,7 @@ async def process_incoming_data(websocket: WebSocket, emp: EmployeeWithLocation,
 if __name__ == "__main__":
     uvicorn.run(
         "main:app", 
-        host="0.0.0.0", 
+        host="0.0.0.0",
         port=8080, 
         ssl_keyfile=SSL_KEY_FILE, 
         ssl_certfile=SSL_CERT_FILE

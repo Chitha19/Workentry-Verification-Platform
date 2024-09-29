@@ -1,7 +1,5 @@
-from fastapi import UploadFile, HTTPException, WebSocket, WebSocketException, status
-from model import OCRData, Employee, EmployeeWithLocation, CheckInLog
-from db import write_check_in_log
-from datetime import datetime
+from fastapi import UploadFile, HTTPException, WebSocket, status
+from model import OCRData, Employee, EmployeeWithLocation
 import asyncio
 import time
 from random import randint
@@ -40,14 +38,6 @@ async def verifying(websocket: WebSocket, emp: EmployeeWithLocation, face_img: b
             if websocket.client_state != 2:
                 print(f'send verified to client')
                 asyncio.gather(websocket.send_text('valid'))
-                
-            # log = CheckInLog(
-            #     timestamp=datetime.now(),
-            #     emp_id=emp.employee.id,
-            #     current_lat=emp.lat,
-            #     current_long=emp.long
-            # )
-            # write_check_in_log(log)
     except asyncio.CancelledError:
         print('task was cancelled')
     
@@ -70,4 +60,4 @@ async def get_emp_data_from_ocr(email: str, password: str, site_id: str, img: Up
     return new_emp
 
 async def store_card_img(img: UploadFile) -> str:
-    return '/path/to/card_img/img.jpg'
+    return '/app/images/img.jpg'

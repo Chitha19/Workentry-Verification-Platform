@@ -1,14 +1,16 @@
 version: '3.8'
 
 services:
-  backend-api:
+  api:
     container_name: backend-api
     build: ./backend
     ports:
       - 8080:8080
+    volumes:
+      - /Users/ukekeilele/Desktop/Coding/flutter/Workentry-Verification-Platform/backend/images:/app/images
     networks:
       - network-db
-  mongo-db:
+  db:
     container_name: mongo-db
     image: mongo
     environment:
@@ -23,5 +25,5 @@ services:
 
 networks:
   network-db:
-    name: network-db
+    name: faceverify
     driver: bridge
