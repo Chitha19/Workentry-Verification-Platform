@@ -6,10 +6,14 @@ services:
     build: ./backend
     ports:
       - 8080:8080
+    # tmpfs: /root/.deepface/weights
     volumes:
       - /Users/ukekeilele/Desktop/Coding/flutter/Workentry-Verification-Platform/backend/images:/app/images
+      - /Users/ukekeilele/Desktop/Coding/flutter/Workentry-Verification-Platform/backend/weights:/root/.deepface/weights
     networks:
       - network-db
+    restart: on-failure
+
   db:
     container_name: mongo-db
     image: mongo
@@ -22,7 +26,8 @@ services:
       - /Users/ukekeilele/Desktop/Coding/flutter/Workentry-Verification-Platform/database/db:/data/db
     networks:
       - network-db
-
+    restart: on-failure
+    
 networks:
   network-db:
     name: faceverify

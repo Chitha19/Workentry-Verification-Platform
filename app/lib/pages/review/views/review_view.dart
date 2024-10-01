@@ -32,6 +32,8 @@ class ReviewView extends GetView<ReviewController> {
       }
 
       if (response.status.isServerError) {
+        final body = json.decode(response.bodyString!) as Map<String, dynamic>;
+        print('========= ReviewView confirmRegisterEmployee ${body}');
         Get.off(const ErrorView(
           title: 'Face Scan',
           message: 'Something went wrong,\nPlease try again later.',

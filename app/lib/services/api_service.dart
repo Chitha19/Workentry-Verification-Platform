@@ -16,11 +16,14 @@ import 'package:image/image.dart' as imglib;
 class ApiService extends GetConnect {
   static ApiService get to => Get.find<ApiService>();
 
-  static const _host = '172.23.19.94:8080';
+  static const _host = '192.168.1.76:8080';
   static const _storage = FlutterSecureStorage();
 
   @override
   bool get allowAutoSignedCert => true;
+
+  @override
+  Duration get timeout => const Duration(minutes: 1);
 
   @override
   void onInit() async {

@@ -65,13 +65,14 @@ class ReviewController extends GetxController with StateMixin<Employee> {
   }
 
   Future<void> ocr() async {
-    try {
-      final response = await ApiService.to.getOCR(
-          RegisterController.to.emailController().text,
-          RegisterController.to.passwordController().text,
-          RegisterController.to.selectedSite().id,
-          RegisterController.to.idCard());
-
+    ApiService.to
+        .getOCR(
+            RegisterController.to.emailController().text,
+            RegisterController.to.passwordController().text,
+            RegisterController.to.selectedSite().id,
+            RegisterController.to.idCard())
+        .then((response) {
+      print('========= ReviewController response from ocr : ${response.isOk}, ${response.headers}');
       if (response.status.isOk) {
         final body = json.decode(response.bodyString!) as Map<String, dynamic>;
         print('========= ReviewController get ocr : $body');
@@ -82,7 +83,7 @@ class ReviewController extends GetxController with StateMixin<Employee> {
         return;
       }
 
-      if (response.status.code == 400) {
+      if (!response.status.isServerError) {
         final body = json.decode(response.bodyString!) as Map<String, dynamic>;
         change(null, status: RxStatus.error(body['detail']));
         return;
@@ -91,11 +92,11 @@ class ReviewController extends GetxController with StateMixin<Employee> {
       change(null,
           status:
               RxStatus.error('Something went wrong,\nPlease try again later.'));
-    } catch (e) {
+    }).onError((error, stack) {
       change(null,
           status:
-              RxStatus.error('Something went wrong,\nPlease try again later.'));
-    }
+              RxStatus.error('Something went wrong,\nPlease try again later.\n$error'));
+    });
   }
 
   void initTECValue() {

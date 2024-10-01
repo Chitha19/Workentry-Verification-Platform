@@ -61,7 +61,7 @@ async def register_emp(admin_data: Annotated[Employee, Depends(validate_token)],
 @app.post(
     "/api/v2/emp",
     response_description="Extract employee data from id card image from-data.",
-    response_model=Employee,
+    # response_model=Employee,
     status_code=status.HTTP_200_OK,
     response_model_by_alias=False,
 )
@@ -88,7 +88,8 @@ async def register_emp_v2(
             site_id=site_id,
             img=img
         )
-        return emp_data
+        print(f'resposne data is {emp_data}')
+        return emp_data.model_dump(by_alias=True, exclude=["id"])
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Get OCR Data Error: {str(e)}")
 
@@ -133,14 +134,20 @@ async def face_verification(websocket: WebSocket, emp: Annotated[EmployeeWithLoc
 
 async def process_incoming_data(websocket: WebSocket, emp: EmployeeWithLocation, face_img: bytes):
     try:
-        output = await face_verify(face_img=face_img, card_img=bytes())
+        output = await face_verify(face_img=face_img, card_img=emp.employee.img)
         print(f"{emp.employee.username} verified {output}")
         if output:
-            inserted = write_check_in_log(emp)
-            print(f"{emp.employee.username} send signal to client and inserted {inserted.acknowledged}")
-            asyncio.gather(websocket.send_text('valid'))
+            asyncio.gather(write_log(websocket=websocket, emp=emp))
     except asyncio.CancelledError:
         print(f"{emp.employee.username} task was cancelled")
+
+async def write_log(websocket: WebSocket, emp: EmployeeWithLocation):
+    try:
+        await websocket.send_text('valid')
+        inserted = write_check_in_log(emp)
+        print(f"{emp.employee.username} send signal to client and inserted {inserted.acknowledged}")
+    except WebSocketDisconnect:
+        print(f"{emp.employee.username} socket was disconnected")
 
 if __name__ == "__main__":
     uvicorn.run(
