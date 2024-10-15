@@ -8,48 +8,87 @@ import 'package:app/widgets/register_btn.dart';
 import 'package:app/widgets/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 class ReviewView extends GetView<ReviewController> {
   const ReviewView({super.key});
 
-  void confirmRegisterEmployee() {
-    final ctx = Get.context!;
-    Utils(ctx).startLoading();
-    ApiService.to
-        .confirmRegisterEmployee(ReviewController.to.employee())
-        .then((response) {
-      Utils(ctx).stopLoading();
-      if (response.status.isOk) {
-        showCupertinoDialog(
-          context: ctx,
-          barrierDismissible: false,
-          builder: (_) => const _ShowSuccess(),
-        );
-        Future.delayed(const Duration(seconds: 2), () {
-          Get.offAllNamed('/');
-        });
-        return;
-      }
+  Future<void> confirmRegisterEmployee() async {
+    Utils(Get.context!).startLoading();
 
-      if (response.status.isServerError) {
-        final body = json.decode(response.bodyString!) as Map<String, dynamic>;
-        print('========= ReviewView confirmRegisterEmployee ${body}');
-        Get.off(const ErrorView(
-          title: 'Face Scan',
-          message: 'Something went wrong,\nPlease try again later.',
-        ));
-        return;
-      }
+    var token = await ApiService.to.getToken();
+    // print('Review token is $token');
+    final body = ReviewController.to.employee().toJson();
 
-      final body = json.decode(response.bodyString!) as Map<String, dynamic>;
-      Utils(ctx).showError('Error: ${body['detail']}');
-    }).onError((error, stack) {
-      Utils(ctx).stopLoading();
-      Get.off(const ErrorView(
-        title: 'Face Scan',
+    final response = await http.post(
+      Uri.parse('https://${ApiService.host}/api/v1/emp'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token == null ? '' : 'Bearer $token'
+      },
+      body: body,
+    );
+
+    Utils(Get.context!).stopLoading();
+
+    if (response.statusCode == 401) {
+      Get.offAllNamed('/login');
+      return;
+    }
+
+    if (!(response.statusCode >= 200 && response.statusCode < 300)) {
+      Get.to(const ErrorView(
+        title: 'Review',
         message: 'Something went wrong,\nPlease try again later.',
       ));
+      return;
+    }
+
+    showCupertinoDialog(
+      context: Get.context!,
+      barrierDismissible: false,
+      builder: (_) => const _ShowSuccess(),
+    );
+    Future.delayed(const Duration(seconds: 2), () {
+      Get.offAllNamed('/');
     });
+    return;
+
+    // ApiService.to
+    //     .confirmRegisterEmployee(ReviewController.to.employee())
+    //     .then((response) {
+    //   Utils(ctx).stopLoading();
+    //   if (response.status.isOk) {
+    //     showCupertinoDialog(
+    //       context: ctx,
+    //       barrierDismissible: false,
+    //       builder: (_) => const _ShowSuccess(),
+    //     );
+    //     Future.delayed(const Duration(seconds: 2), () {
+    //       Get.offAllNamed('/');
+    //     });
+    //     return;
+    //   }
+
+    //   if (response.status.isServerError) {
+    //     final body = json.decode(response.bodyString!) as Map<String, dynamic>;
+    //     print('========= ReviewView confirmRegisterEmployee ${body}');
+    //     Get.off(const ErrorView(
+    //       title: 'Face Scan',
+    //       message: 'Something went wrong,\nPlease try again later.',
+    //     ));
+    //     return;
+    //   }
+
+    //   final body = json.decode(response.bodyString!) as Map<String, dynamic>;
+    //   Utils(ctx).showError('Error: ${body['detail']}');
+    // }).onError((error, stack) {
+    //   Utils(ctx).stopLoading();
+    //   Get.off(const ErrorView(
+    //     title: 'Face Scan',
+    //     message: 'Something went wrong,\nPlease try again later.',
+    //   ));
+    // });
   }
 
   @override
@@ -108,7 +147,7 @@ class ReviewView extends GetView<ReviewController> {
                         _DisplayData(
                             title: 'Password',
                             controller: controller.passwordController()),
-                        const _DisplaySelectIsAdmin()
+                        const _DisplaySelectIsAdmin() //! admin
                       ]),
                       Obx(() => RegisterButtonLayout(
                             onPrev: () => Get.back(),

@@ -7,14 +7,13 @@ import 'package:app/services/api_service.dart';
 // import 'package:app/services/auth_service.dart';
 import 'package:app/services/userinfo_service.dart';
 // import 'package:camera/camera.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 
 class HomeController extends GetxController with StateMixin<User> {
   // ApiService get apiService => ApiService.to;
 
-  // final _storage = const FlutterSecureStorage();
   // late Position _currentPosition;
 
   @override
@@ -22,6 +21,9 @@ class HomeController extends GetxController with StateMixin<User> {
     print('========= HomeController on init');
 
     change(null, status: RxStatus.loading());
+  // final _storage = const FlutterSecureStorage();
+    // await _storage.write(key: 'access_token', value: null); //! ==
+    // await _storage.delete(key: 'access_token'); //! ==
 
     super.onInit();
   }

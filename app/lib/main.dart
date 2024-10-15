@@ -36,8 +36,8 @@ void main() {
     theme: const CupertinoThemeData(brightness: Brightness.light),
     initialRoute: '/',
     initialBinding: BindingsBuilder(() {
-      Get.put<ApiService>(ApiService());
-      Get.lazyPut<AuthService>(() => AuthService(), fenix: true);
+      // Get.put<ApiService>(ApiService());
+      // Get.lazyPut<AuthService>(() => AuthService(), fenix: true);
       // Get.lazyPut<HomeController>(() => HomeController(), fenix: true);
       // Get.lazyPut<RegisterController>(() => RegisterController(), fenix: true);
     }),

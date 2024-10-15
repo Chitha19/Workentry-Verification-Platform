@@ -13,7 +13,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
 class LoginController extends GetxController {
-  static const _storage = FlutterSecureStorage();
+  // static const _storage = FlutterSecureStorage();
 
   final emailController = TextEditingController().obs;
   final passwordController = TextEditingController().obs;
@@ -62,7 +62,7 @@ class LoginController extends GetxController {
       if (response.status.isOk) {
         final body = json.decode(response.bodyString!) as Map<String, dynamic>;
         final auth = Auth.fromJson(body);
-        await _storage.write(key: 'access_token', value: auth.token);
+        await ApiService.storage.write(key: 'access_token', value: auth.token);
         Get.offAllNamed('/');
         return;
       }

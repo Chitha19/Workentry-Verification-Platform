@@ -11,6 +11,7 @@ from model import EmployeeWithLocation
 SECRET_KEY = "7a28547b0585580e129d01c1f2b4633b6dc3e248f71530ea35c8765571e4c730"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# ACCESS_TOKEN_EXPIRE_MINUTES = 10
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

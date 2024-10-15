@@ -42,7 +42,8 @@ async def read_corps(emp: Annotated[Employee, Depends(validate_token)]):
 async def register_emp(admin_data: Annotated[Employee, Depends(validate_token)], emp: Employee):
     if not admin_data["isAdmin"]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid permission.")
-    
+    # print(f'post by {admin_data["username"]}')
+    # print(f'data: {emp}')
     if not is_site_exist(emp.site_id):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="SiteID is not exists")
 

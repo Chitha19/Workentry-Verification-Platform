@@ -43,7 +43,7 @@ class Employee {
   }
 
   String toJson() {
-    return json.encode({
+    final emp = json.encode({
       'emp_corp_id': id,
       'site_id': siteID,
       'username': username,
@@ -56,5 +56,7 @@ class Employee {
       'isAdmin': isAdmin,
       'img': img
     });
+    print('confirm $emp');
+    return emp;
   }
 }
