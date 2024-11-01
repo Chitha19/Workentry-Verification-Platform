@@ -52,12 +52,13 @@ async def face_verify(face_img: bytes, card_img: str) -> bool:
         normalization='base',
         threshold=0.786
     )
-    return result['verified']
+    #! return distance 
+    return result['verify'], result['distance']
     
 async def get_emp_data_from_ocr(email: str, password: str, site_id: str, img: UploadFile) -> Employee:
     img_bytes = await img.read()
     coros = [store_card_img(img=img_bytes), ocr(card=img_bytes)]
-    [img_path, data] = await asyncio.gather(*coros)
+    [img_path, data] = await asyncio.gather(*coros) 
     new_emp = Employee(
         site_id=site_id,
         username=email.split('@')[0],

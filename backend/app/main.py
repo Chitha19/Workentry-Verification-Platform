@@ -1,12 +1,22 @@
 import asyncio
-import uvicorn
-from fastapi import FastAPI, WebSocket, HTTPException, status, Depends, Form, UploadFile, WebSocketDisconnect
 from typing import Annotated
+
+import uvicorn
+from authen import (create_access_token, hashed_password, validate_token,
+                    validate_token_for_ws, verify_password)
+from db import (get_corps, get_emp, get_emp_by_email, is_emp_exist_by_email,
+                is_site_exist, register, write_check_in_log)
+from fastapi import (Depends, FastAPI, Form, HTTPException, UploadFile,
+                     WebSocket, WebSocketDisconnect, status)
+from ml import face_verify, get_emp_data_from_ocr
+from model import (Corp, Employee, EmployeeResponse, EmployeeWithLocation,
+                   Login, LoginResponse)
 from pydantic import EmailStr
-from db import get_corps, register, is_site_exist, get_emp, get_emp_by_email, is_emp_exist_by_email, write_check_in_log
-from authen import hashed_password, verify_password, create_access_token, validate_token, validate_token_for_ws
-from model import Corp, Employee, Login, LoginResponse, EmployeeResponse, EmployeeWithLocation
-from ml import get_emp_data_from_ocr, face_verify
+from PIL import Image
+from io import BytesIO
+import string
+import random
+
 # from PIL import Image
 # from io import BytesIO
 
@@ -135,17 +145,23 @@ async def face_verification(websocket: WebSocket, emp: Annotated[EmployeeWithLoc
 
 async def process_incoming_data(websocket: WebSocket, emp: EmployeeWithLocation, face_img: bytes):
     try:
-        output = await face_verify(face_img=face_img, card_img=emp.employee.img)
-        print(f"{emp.employee.username} verified {output}")
-        if output:
-            asyncio.gather(write_log(websocket=websocket, emp=emp))
+        verify, distance  = await face_verify(face_img=face_img, card_img=emp.employee.img)
+        print(f"{emp.employee.username} verified {verify}")
+        if verify:
+            asyncio.gather(write_log(websocket=websocket, emp=emp,face_img=face_img,distance=distance)) #! เพิ่ม parameter face_img เพื่อเอาไป save เป็นไฟล์รูป
     except asyncio.CancelledError:
         print(f"{emp.employee.username} task was cancelled")
 
-async def write_log(websocket: WebSocket, emp: EmployeeWithLocation):
+async def write_log(websocket: WebSocket, emp: EmployeeWithLocation, face_img: bytes, distance:float ):
     try:
         await websocket.send_text('valid')
-        inserted = write_check_in_log(emp)
+        #! save รูป face_img แล้วเอา image path เก็บใน db
+        filename = ''.join(random.choices(string.ascii_letters, k=16)) + '.jpg'
+        img = Image.open(BytesIO(face_img))
+        path = f'/app/images/face_scan/{filename}'
+        img.save(path)
+        
+        inserted = write_check_in_log(emp, distance=distance, img_face=path)
         print(f"{emp.employee.username} send signal to client and inserted {inserted.acknowledged}")
     except WebSocketDisconnect:
         print(f"{emp.employee.username} socket was disconnected")

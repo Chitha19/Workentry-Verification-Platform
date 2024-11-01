@@ -37,12 +37,14 @@ def is_site_exist(id: str):
 def register(emp: Employee):
     return db.employee.insert_one(emp)
 
-def write_check_in_log(emp: EmployeeWithLocation):
+def write_check_in_log(emp: EmployeeWithLocation, distance:float, img_face:str):
     log = {
         "timestamp": datetime.now(),
         "emp_id": emp.employee.id,
         "current_lat": emp.lat,
-        "current_long": emp.long
+        "current_long": emp.long,
+        "distance" :distance,
+        "img_face" :img_face
     }
     print(f'{emp.employee.username} log is {log}')
     return db.check_in.insert_one(log)

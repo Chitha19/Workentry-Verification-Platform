@@ -3,13 +3,12 @@ version: '3.8'
 services:
   api:
     container_name: backend-api
-    build: ./backend
+    image: 905418362357.dkr.ecr.ap-southeast-1.amazonaws.com/work-enties:latest
     ports:
       - 8080:8080
-    # tmpfs: /root/.deepface/weights
     volumes:
-      - /Users/ukekeilele/Desktop/Coding/flutter/Workentry-Verification-Platform/backend/images:/app/images
-      - /Users/ukekeilele/Desktop/Coding/flutter/Workentry-Verification-Platform/backend/weights:/root/.deepface/weights
+      - /app/backend/images:/app/images
+      - /app/backend/weights:/root/.deepface/weights
     networks:
       - network-db
     restart: on-failure
@@ -23,7 +22,7 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - /Users/ukekeilele/Desktop/Coding/flutter/Workentry-Verification-Platform/database/db:/data/db
+      - /app/db:/data/db
     networks:
       - network-db
     restart: on-failure

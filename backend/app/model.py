@@ -62,3 +62,6 @@ class CheckInLog(BaseModel):
     emp_id: str
     current_lat: float
     current_long: float
+    distance: float
+    img_face: str
+    
