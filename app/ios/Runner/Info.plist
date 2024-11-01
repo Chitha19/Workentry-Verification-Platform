@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Used to take photos for face scan</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs to know where employee is</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Actualy not use</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
@@ -49,7 +51,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs to know where employee is</string>
 </dict>
 </plist>

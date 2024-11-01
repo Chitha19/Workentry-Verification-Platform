@@ -3,12 +3,16 @@ version: '3.8'
 services:
   api:
     container_name: backend-api
-    image: 905418362357.dkr.ecr.ap-southeast-1.amazonaws.com/work-enties:latest
+    # image: 905418362357.dkr.ecr.ap-southeast-1.amazonaws.com/work-enties:latest
+    build: ./backend
     ports:
       - 8080:8080
     volumes:
-      - /app/backend/images:/app/images
-      - /app/backend/weights:/root/.deepface/weights
+      - ./backend/images:/app/images
+      - ./backend/weights:/root/.deepface/weights
+    # volumes:
+    #   - /app/backend/images:/app/images
+    #   - /app/backend/weights:/root/.deepface/weights
     networks:
       - network-db
     restart: on-failure
@@ -22,7 +26,9 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - /app/db:/data/db
+      - ./database/db:/data/db
+    # volumes:
+    #   - /app/db:/data/db
     networks:
       - network-db
     restart: on-failure

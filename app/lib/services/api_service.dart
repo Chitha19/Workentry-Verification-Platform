@@ -16,6 +16,7 @@ import 'package:image/image.dart' as imglib;
 class ApiService extends GetConnect {
   static ApiService get to => Get.find<ApiService>();
 
+  // static const host = '13.251.157.178:8080';
   static const host = '192.168.1.76:8080';
   static const storage = FlutterSecureStorage();
 

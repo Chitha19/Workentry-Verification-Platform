@@ -53,7 +53,7 @@ async def face_verify(face_img: bytes, card_img: str) -> bool:
         threshold=0.786
     )
     #! return distance 
-    return result['verify'], result['distance']
+    return result['verified'], result['distance']
     
 async def get_emp_data_from_ocr(email: str, password: str, site_id: str, img: UploadFile) -> Employee:
     img_bytes = await img.read()
