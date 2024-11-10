@@ -65,4 +65,5 @@ class CheckInLog(BaseModel):
     current_long: float
     distance: float
     img_face: str
+    verified: bool
     

@@ -145,7 +145,7 @@ async def face_verification(websocket: WebSocket, emp: Annotated[EmployeeWithLoc
 
 async def process_incoming_data(websocket: WebSocket, emp: EmployeeWithLocation, face_img: bytes):
     try:
-        verify, distance  = await face_verify(face_img=face_img, card_img=emp.employee.img, threshold=emp.employee.distance)
+        verify, distance  = await face_verify(emp=emp, face_img=face_img, card_img=emp.employee.img, threshold=emp.employee.distance)
         print(f"{emp.employee.username} verified {verify}")
         if verify:
             asyncio.gather(write_log(websocket=websocket, emp=emp,face_img=face_img,distance=distance)) #! เพิ่ม parameter face_img เพื่อเอาไป save เป็นไฟล์รูป
@@ -156,13 +156,13 @@ async def write_log(websocket: WebSocket, emp: EmployeeWithLocation, face_img: b
     try:
         await websocket.send_text('valid')
         #! save รูป face_img แล้วเอา image path เก็บใน db
-        filename = ''.join(random.choices(string.ascii_letters, k=16)) + '.jpg'
-        img = Image.open(BytesIO(face_img))
-        path = f'/app/images/face_scan/{filename}'
-        img.save(path)
+        # filename = ''.join(random.choices(string.ascii_letters, k=16)) + '.jpg'
+        # img = Image.open(BytesIO(face_img))
+        # path = f'/app/images/face_scan/{filename}'
+        # img.save(path)
         
-        inserted = write_check_in_log(emp, distance=distance, img_face=path)
-        print(f"{emp.employee.username} send signal to client and inserted {inserted.acknowledged}")
+        # inserted = write_check_in_log(emp, distance=distance, img_face=path)
+        # print(f"{emp.employee.username} send signal to client and inserted {inserted.acknowledged}")
     except WebSocketDisconnect:
         print(f"{emp.employee.username} socket was disconnected")
 

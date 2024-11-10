@@ -1,5 +1,5 @@
 from fastapi import UploadFile, HTTPException, status
-from model import OCRData, Employee
+from model import OCRData, Employee, EmployeeWithLocation
 import asyncio
 from easyocr import Reader
 import string
@@ -8,6 +8,7 @@ import numpy as np
 from deepface import DeepFace
 from PIL import Image
 from io import BytesIO
+from db import write_check_in_log
 # import cv2
 
 OCR_READER = Reader(lang_list=['en','th'], gpu=True)
@@ -39,7 +40,7 @@ async def ocr(card: bytes):
             detail=f"Extract Data From Card Error: {e}"
         )
     
-async def face_verify(face_img: bytes, card_img: str, threshold: float = 0.5) -> bool:
+async def face_verify(emp: EmployeeWithLocation, face_img: bytes, card_img: str, threshold: float = 0.5) -> bool:
     tmp = np.array(Image.open(BytesIO(face_img)))
     result = DeepFace.verify(
         img1_path=tmp, 
@@ -54,6 +55,7 @@ async def face_verify(face_img: bytes, card_img: str, threshold: float = 0.5) ->
         # threshold=0.786
     )
     #! return distance 
+    asyncio.gather( write_log(emp=emp, face_img=face_img, distance=result['distance'], verified=result['verified']) )
     return result['verified'], result['distance']
     
 async def get_emp_data_from_ocr(email: str, password: str, site_id: str, img: UploadFile) -> Employee:
@@ -101,3 +103,15 @@ async def store_card_img(img: bytes) -> str:
     face_img.save(path)
     # print(f"image seved")
     return path
+
+async def write_log(emp: EmployeeWithLocation, face_img: bytes, distance: float, verified: bool):
+    try:
+        #! save รูป face_img แล้วเอา image path เก็บใน db
+        filename = ''.join(random.choices(string.ascii_letters, k=16)) + '.jpg'
+        img = Image.open(BytesIO(face_img))
+        path = f'/app/images/face_scan/{filename}'
+        img.save(path)
+        
+        write_check_in_log(emp, distance=distance, img_face=path, verified=verified)
+    except  Exception as e:
+        print(f"{emp.employee.username} error {e}")
