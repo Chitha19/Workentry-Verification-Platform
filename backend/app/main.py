@@ -145,7 +145,7 @@ async def face_verification(websocket: WebSocket, emp: Annotated[EmployeeWithLoc
 
 async def process_incoming_data(websocket: WebSocket, emp: EmployeeWithLocation, face_img: bytes):
     try:
-        verify, distance  = await face_verify(face_img=face_img, card_img=emp.employee.img)
+        verify, distance  = await face_verify(face_img=face_img, card_img=emp.employee.img, threshold=emp.employee.distance)
         print(f"{emp.employee.username} verified {verify}")
         if verify:
             asyncio.gather(write_log(websocket=websocket, emp=emp,face_img=face_img,distance=distance)) #! เพิ่ม parameter face_img เพื่อเอาไป save เป็นไฟล์รูป

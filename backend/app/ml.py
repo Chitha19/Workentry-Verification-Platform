@@ -39,7 +39,7 @@ async def ocr(card: bytes):
             detail=f"Extract Data From Card Error: {e}"
         )
     
-async def face_verify(face_img: bytes, card_img: str) -> bool:
+async def face_verify(face_img: bytes, card_img: str, threshold: float = 0.5) -> bool:
     tmp = np.array(Image.open(BytesIO(face_img)))
     result = DeepFace.verify(
         img1_path=tmp, 
@@ -50,7 +50,8 @@ async def face_verify(face_img: bytes, card_img: str) -> bool:
         enforce_detection=False, #true
         align=True,
         normalization='base',
-        threshold=0.786
+        threshold=threshold
+        # threshold=0.786
     )
     #! return distance 
     return result['verified'], result['distance']

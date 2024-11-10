@@ -27,8 +27,9 @@ class Employee(BaseModel):
     img: str = Field(default="/")
     email: EmailStr
     password: str
-    # password: SecretStr
     isAdmin: bool
+    distance: Optional[float] = Field(default=0.5)
+    # password: SecretStr
 
 class Login(BaseModel):
     username: str
